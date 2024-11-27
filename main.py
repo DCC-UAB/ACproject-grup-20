@@ -1,3 +1,2 @@
-print('proba')
-
-print('actualitzacio')
+#arixu def
+import torch
