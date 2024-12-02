@@ -32,7 +32,7 @@ def normalize_text(text):
     filtered_words = [word for word in words if word not in stop_words]
     return " ".join(filtered_words)
 
-# Inicialitzar el lematitzador i el stemmer una sola vegada
+# Inicialitzar el lematitzador i el stemmer
 lemmatizer = WordNetLemmatizer()
 stemmer = PorterStemmer()
 
