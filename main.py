@@ -1,14 +1,13 @@
 #Premodel: falta convertir text a matriu numerica (fora de main), eliminar lletres sueltes random?
 #Falta crida respectiu model: parametres!! i tambe falta avaluacio
 
-
-
 import re
 import pandas as pd
 import sys
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer, PorterStemmer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 import LR
 import SVM
@@ -21,6 +20,8 @@ MODEL_CHOICE = 1
 
 # path carpeta
 DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
+#DATA_PATH = 
+#DATA_PATH = 
 
 # Normalització del text
 def normalize_text(text):
@@ -70,6 +71,10 @@ def load_and_preprocess_data(data_path):
     X_valid = pd.read_csv(f'{data_path}Valid.csv')
     X_test = pd.read_csv(f'{data_path}Test.csv')
 
+    #X_train = X_train.head(10)
+    #X_valid = X_valid.head(10)
+    #X_test = X_test.head(10)
+
     # Preprocessament
     X_train = preprocess_pipeline(X_train, 'text')
     X_valid = preprocess_pipeline(X_valid, 'text')
@@ -85,12 +90,24 @@ def load_and_preprocess_data(data_path):
 
     return X_train, y_train, X_valid, y_valid, X_test, y_test
 
+def convert_to_numeric_matrices(X_train, X_valid, X_test):
+    """
+    Converteix els textos preprocessats en matrius numèriques utilitzant TF-IDF.
+    """
+    vectorizer = TfidfVectorizer(max_features=5000)  # ajustar el nombre de features
+    X_train_matrix = vectorizer.fit_transform(X_train['processed_text'])
+    X_valid_matrix = vectorizer.transform(X_valid['processed_text'])
+    X_test_matrix = vectorizer.transform(X_test['processed_text'])
+    return X_train_matrix, X_valid_matrix, X_test_matrix, vectorizer
 
 def main():
     # Carregar i processar les dades
     X_train, y_train, X_valid, y_valid, X_test, y_test = load_and_preprocess_data(DATA_PATH)
+    
+    # Convertir a matrius numèriques
+    X_train_matrix, X_valid_matrix, X_test_matrix, vectorizer = convert_to_numeric_matrices(X_train, X_valid, X_test)
+    
     # Aquí es cridarien les funcions per entrenar i avaluar el model seleccionat
-    #MODEL_CHOICE
 
 if __name__ == "__main__":
     main()
