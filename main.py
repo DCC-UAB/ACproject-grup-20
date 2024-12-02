@@ -1,3 +1,8 @@
+#Premodel: falta convertir text a matriu numerica (fora de main), eliminar lletres sueltes random?
+#Falta crida respectiu model: parametres!! i tambe falta avaluacio
+
+
+
 import re
 import pandas as pd
 import sys
@@ -11,7 +16,7 @@ import RF
 import KNN
 import NB
 
-# Selecció del model al principi del codi
+# Selecció model: KNN, LR, NB, RF, SVM 
 MODEL_CHOICE = 1
 
 # path carpeta
@@ -56,7 +61,6 @@ def preprocess_pipeline(data, column_name):
     data['processed_text'] = data['cleaned_text'].apply(lemmatize_and_stem)
     return data
 
-
 def load_and_preprocess_data(data_path):
     """
     Càrrega i preprocessament de les dades.
@@ -81,10 +85,12 @@ def load_and_preprocess_data(data_path):
 
     return X_train, y_train, X_valid, y_valid, X_test, y_test
 
+
 def main():
     # Carregar i processar les dades
     X_train, y_train, X_valid, y_valid, X_test, y_test = load_and_preprocess_data(DATA_PATH)
     # Aquí es cridarien les funcions per entrenar i avaluar el model seleccionat
+    #MODEL_CHOICE
 
 if __name__ == "__main__":
     main()
