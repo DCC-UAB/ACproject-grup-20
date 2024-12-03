@@ -1,3 +1,5 @@
+#gridsearch, valors de c
+
 from sklearn.linear_model import LogisticRegression
 
 def entrena_i_prediu(X_train, y_train, X_test):

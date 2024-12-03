@@ -1,4 +1,5 @@
 #ELIMINAR LLETRES SUELTES RANDOM??
+import time
 import re
 import pandas as pd
 import sys
@@ -16,7 +17,16 @@ import KNN
 import NB
 
 # Selecció model: KNN, LR, NB, RF, SVM 
+model_modules = {
+    "LR": LR,
+    "SVM": SVM,
+    "KNN": KNN,
+    "RF": RF,
+    "NB": NB
+}
 MODEL_CHOICE = 'LR'
+if MODEL_CHOICE not in model_modules:
+    raise ValueError(f"Model no reconegut: {MODEL_CHOICE}")
 
 # path carpeta
 DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
@@ -58,10 +68,10 @@ def preprocess_pipeline(data, column_name):
     """
     Funció que aplica la normalització i la lematització/stemming al dataset.
     """
-    data['cleaned_text'] = data[column_name].apply(normalize_text)
-    data['processed_text'] = data['cleaned_text'].apply(lemmatize_and_stem)
+    data['processed_text'] = data['text'].apply(lambda x: lemmatize_and_stem(normalize_text(x)))
     return data
 
+#carregar i preprocessar dades
 def load_and_preprocess_data(data_path):
     """
     Càrrega i preprocessament de les dades.
@@ -116,29 +126,24 @@ def evaluar_resultats(y_true, y_pred):
     return cm, accuracy
 
 def main():
+    start_time = time.time()
+
     # Carregar i processar les dades
     X_train, y_train, X_valid, y_valid, X_test, y_test = load_and_preprocess_data(DATA_PATH)
-    
+    processar_time = time.time()
+    print('temps preocessar', processar_time - start_time)
+
     # Convertir a matrius numèriques
     X_train_matrix, X_valid_matrix, X_test_matrix, vectorizer = convert_to_numeric_matrices(X_train, X_valid, X_test)
     
-    # Seleccionar i executar el model segons la configuració
-    print(f"Entrenant el model: {MODEL_CHOICE}")
-    if MODEL_CHOICE == "LR":
-        predictions_test = LR.entrena_i_prediu(X_train_matrix, y_train, X_test_matrix)
-    elif MODEL_CHOICE == "SVM":
-        predictions_test = SVM.entrena_i_prediu(X_train_matrix, y_train, X_test_matrix)
-    elif MODEL_CHOICE == "KNN":
-        predictions_test = KNN.entrena_i_prediu(X_train_matrix, y_train, X_test_matrix)
-    elif MODEL_CHOICE == "RF":
-        predictions_test = RF.entrena_i_prediu(X_train_matrix, y_train, X_test_matrix)
-    elif MODEL_CHOICE == "NB":
-        predictions_test = NB.entrena_i_prediu(X_train_matrix, y_train, X_test_matrix)
-    else:
-        raise ValueError(f"Model no reconegut: {MODEL_CHOICE}")
+    #obtenir model i entrenar/predir
+    model_module = model_modules[MODEL_CHOICE]
+    pred_test = getattr(model_module, "entrena_i_prediu")(X_train_matrix, y_train, X_test_matrix)
+    entrenaripredir_time = time.time()
+    print('temps entrenament', entrenaripredir_time - processar_time)
 
     # Avaluar els resultats
-    evaluar_resultats(y_test, predictions_test)
+    evaluar_resultats(y_test, pred_test)
 
 if __name__ == "__main__":
     main()
