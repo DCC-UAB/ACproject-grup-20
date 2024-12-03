@@ -1,26 +1,18 @@
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
 
-def train_and_evaluate(X_train, y_train, X_valid, y_valid, X_test, y_test):
+def entrena_i_prediu(X_train, y_train, X_test):
     """
-    Entrenament del model de Logistic Regression i avaluació.
+    Entrena un model de regressió logística i genera les prediccions.
     """
-    # Inicialitzar el model
-    model = LogisticRegression(max_iter=1000)
-
+    # Definir el model
+    C_value = 1.0  # Valor fix de C
+    model = LogisticRegression(C=C_value, solver='liblinear', max_iter=5000, penalty='l2')
+    
     # Entrenar el model
+    print("Entrenant regressió logística...")
     model.fit(X_train, y_train)
-
-    # Fer prediccions
-    y_train_pred = model.predict(X_train)
-    y_valid_pred = model.predict(X_valid)
-    y_test_pred = model.predict(X_test)
-
-
-
-
-
-
-
-
-    return model
+    
+    # Generar prediccions
+    print("Generant prediccions amb regressió logística...")
+    predictions = model.predict(X_test)
+    return predictions
