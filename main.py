@@ -1,4 +1,5 @@
 #ELIMINAR LLETRES SUELTES RANDOM??
+#5000 vect0ritzacio suficient???
 import time
 import re
 import pandas as pd
@@ -117,10 +118,12 @@ def main():
     # Convertir a matrius numèriques
     X_train_matrix, X_valid_matrix, X_test_matrix, vectorizer = convert_to_numeric_matrices(X_train, X_valid, X_test)
     
-    #obtenir model i entrenar/predir
+    #obtenir model
     if MODEL_CHOICE not in model_modules:
         raise ValueError(f"Model no reconegut: {MODEL_CHOICE}")
     model_module = model_modules[MODEL_CHOICE]
+    
+    #entrenar i predir
     y_pred = getattr(model_module, "entrena_prediu_i_evalua")(X_train_matrix, y_train, X_test_matrix, y_test)
     entrenaripredir_time = time.time()
     print('temps entrenament', entrenaripredir_time - processar_time)
