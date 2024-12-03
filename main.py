@@ -7,7 +7,6 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 import LR
 import SVM
@@ -107,21 +106,6 @@ def convert_to_numeric_matrices(X_train, X_valid, X_test):
     X_test_matrix = vectorizer.transform(X_test['processed_text'])
     return X_train_matrix, X_valid_matrix, X_test_matrix, vectorizer
 
-def evaluar_resultats(y_true, y_pred):
-    """
-    Calcula i mostra la matriu de confusió i l'accuracy a partir de les etiquetes reals i les prediccions.
-    """
-    # Calcula la matriu de confusió
-    cm = confusion_matrix(y_true, y_pred)
-    print("\nMatriu de confusió:")
-    print(cm)
-    
-    # Calcula l'accuracy
-    accuracy = accuracy_score(y_true, y_pred)
-    print(f"\nAccuracy: {accuracy:.4f}")
-    
-    return cm, accuracy
-
 def main():
     start_time = time.time()
 
@@ -137,12 +121,9 @@ def main():
     if MODEL_CHOICE not in model_modules:
         raise ValueError(f"Model no reconegut: {MODEL_CHOICE}")
     model_module = model_modules[MODEL_CHOICE]
-    pred_test = getattr(model_module, "entrena_i_prediu")(X_train_matrix, y_train, X_test_matrix)
+    getattr(model_module, "entrena_prediu_i_evalua")(X_train_matrix, y_train, X_test_matrix, y_test)
     entrenaripredir_time = time.time()
     print('temps entrenament', entrenaripredir_time - processar_time)
-
-    # Avaluar els resultats
-    evaluar_resultats(y_test, pred_test)
 
 if __name__ == "__main__":
     main()
