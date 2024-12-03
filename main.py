@@ -1,5 +1,8 @@
+#kaggle separa amb els 3, validation tbe utilitzem o repartrim train-test???
 #ELIMINAR LLETRES SUELTES RANDOM??
+#podem treure directament els tres elements amb altre idioma???
 #5000 vect0ritzacio suficient???
+
 import time
 import re
 import pandas as pd
@@ -16,7 +19,7 @@ import KNN
 import NB
 
 # Selecció model: KNN, LR, NB, RF, SVM
-MODEL_CHOICE = 'LR' 
+MODEL_CHOICE = 'NB' 
 model_modules = {
     "LR": LR,
     "SVM": SVM,

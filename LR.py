@@ -92,15 +92,13 @@ def entrena_prediu_i_evaluaG(X_train, y_train, X_test, y_test):
     return clf_
 
 
+#RESUTLATS GRIDSEARCH:
 '''
-Resultats GridSearch (dataset capats):
-Accuracy sobre el conjunt de test: 0.8610
-Accuracy sobre el conjunt d'entrenament: 0.9336
-Millor accuracy en validació creuada: 0.8548
-Millors hiperparàmetres trobats: {'C': 1, 'max_iter': 5000, 'penalty': 'l2', 'solver': 'saga'}
+Accuracy sobre el conjunt de test: 0.8900
+Accuracy sobre el conjunt d'entrenament: 0.9100
+Millor accuracy en validació creuada: 0.8853
+Millors hiperparàmetres trobats: {'C': 1, 'max_iter': 500, 'penalty': 'l2', 'solver': 'liblinear'}
 Claus disponibles a l'objecte GridSearchCV:
 dict_keys(['scoring', 'estimator', 'n_jobs', 'refit', 'cv', 'verbose', 'pre_dispatch', 'error_score', 'return_train_score', 'param_grid', 'multimetric_', 'best_index_', 'best_score_', 'best_params_', 'best_estimator_', 'refit_time_', 'scorer_', 'cv_results_', 'n_splits_'])       
-temps entrenament 246.35770535469055
-
-
+temps entrenament 4144.591024875641
 '''
