@@ -77,9 +77,9 @@ def load_and_preprocess_data(data_path):
     X_valid = pd.read_csv(f'{data_path}Valid.csv')
     X_test = pd.read_csv(f'{data_path}Test.csv')
 
-    X_train = X_train.head(5000)
-    X_valid = X_valid.head(1000)
-    X_test = X_test.head(1000)
+    #X_train = X_train.head(5000)
+    #X_valid = X_valid.head(1000)
+    #X_test = X_test.head(1000)
 
     # Preprocessament
     X_train = preprocess_pipeline(X_train, 'text')
@@ -121,7 +121,7 @@ def main():
     if MODEL_CHOICE not in model_modules:
         raise ValueError(f"Model no reconegut: {MODEL_CHOICE}")
     model_module = model_modules[MODEL_CHOICE]
-    getattr(model_module, "entrena_prediu_i_evalua")(X_train_matrix, y_train, X_test_matrix, y_test)
+    y_pred = getattr(model_module, "entrena_prediu_i_evalua")(X_train_matrix, y_train, X_test_matrix, y_test)
     entrenaripredir_time = time.time()
     print('temps entrenament', entrenaripredir_time - processar_time)
 
