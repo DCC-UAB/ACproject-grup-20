@@ -9,14 +9,14 @@ from nltk.stem import WordNetLemmatizer, PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
-
 import LR
 import SVM
 import RF
 import KNN
 import NB
 
-# Selecció model: KNN, LR, NB, RF, SVM 
+# Selecció model: KNN, LR, NB, RF, SVM
+MODEL_CHOICE = 'LR' 
 model_modules = {
     "LR": LR,
     "SVM": SVM,
@@ -24,9 +24,6 @@ model_modules = {
     "RF": RF,
     "NB": NB
 }
-MODEL_CHOICE = 'LR'
-if MODEL_CHOICE not in model_modules:
-    raise ValueError(f"Model no reconegut: {MODEL_CHOICE}")
 
 # path carpeta
 DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
@@ -137,6 +134,8 @@ def main():
     X_train_matrix, X_valid_matrix, X_test_matrix, vectorizer = convert_to_numeric_matrices(X_train, X_valid, X_test)
     
     #obtenir model i entrenar/predir
+    if MODEL_CHOICE not in model_modules:
+        raise ValueError(f"Model no reconegut: {MODEL_CHOICE}")
     model_module = model_modules[MODEL_CHOICE]
     pred_test = getattr(model_module, "entrena_i_prediu")(X_train_matrix, y_train, X_test_matrix)
     entrenaripredir_time = time.time()
