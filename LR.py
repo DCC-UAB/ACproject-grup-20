@@ -171,7 +171,4 @@ Eix Y: Mètrica (accuracy, F1, etc.).
 
 Anàlisi de l'espai de cerca:
 Heatmap que mostri l'accuracy obtinguda en funció de dos hiperparàmetres (p. ex., penalty i solver).
-
-Convergència del model:
-Si varies max_iter, una gràfica per veure com afecta al temps d'entrenament o a la mètrica d'accuracy.
 '''

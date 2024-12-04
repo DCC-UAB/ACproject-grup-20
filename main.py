@@ -1,8 +1,8 @@
 #kaggle separa amb els 3, validation tbe utilitzem o repartrim train-test???
 #ELIMINAR LLETRES SUELTES RANDOM??
 #podem treure directament els tres elements amb altre idioma???
-#5000 vect0ritzacio suficient???
-#utlitzar diccionari paraules bones/dolentes com a regla o pes? nse si es massa bias
+#5000 vect0ritzacio suficient??? mirar despres preprocessament nºparaules uniques i seva distribucio
+#utlitzar diccionari paraules bones/dolentes com a regla o pes? (nse si es massa bias o massa lent a lhora de carregar)
 
 import time
 import re
