@@ -10,24 +10,20 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-import LR
-import SVM
-import RF
-import KNN
-import NB
+import MiniLR
+#import SVM
+#import RF
+#import KNN
+#import NB
 
 # Selecció model: KNN, LR, NB, RF, SVM
-MODEL_CHOICE = 'LR' 
+MODEL_CHOICE = 'MiniLR' 
 model_modules = {
-    "LR": LR,
-    "SVM": SVM,
-    "KNN": KNN,
-    "RF": RF,
-    "NB": NB
+    "MiniLR": MiniLR
 }
 
 # path carpeta
-DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
+DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasetsMini_AC/'  
 #DATA_PATH = 
 #DATA_PATH = 
 
@@ -75,13 +71,11 @@ def load_and_preprocess_data(data_path):
     Càrrega i preprocessament de les dades.
     """
     # Carregar el dataset Train, Valid, Test
-    X_train = pd.read_csv(f'{data_path}Train.csv')
-    X_valid = pd.read_csv(f'{data_path}Valid.csv')
-    X_test = pd.read_csv(f'{data_path}Test.csv')
+    X_train = pd.read_csv(f'{data_path}MiniTrain.csv')
+    X_valid = pd.read_csv(f'{data_path}MiniValid.csv')
+    X_test = pd.read_csv(f'{data_path}MiniTest.csv')
 
-    #X_train = X_train.head(5000)
-    #X_valid = X_valid.head(2000)
-    #X_test = X_test.head(2000)
+    print('\ndocument train original:\n',X_train)
 
     # Preprocessament
     X_train = preprocess_pipeline(X_train, 'text')
@@ -102,7 +96,7 @@ def convert_to_numeric_matrices(X_train, X_valid, X_test):
     """
     Converteix els textos preprocessats en matrius numèriques utilitzant TF-IDF.
     """
-    vectorizer = TfidfVectorizer(max_features=5000)  # ajustar el nombre de features
+    vectorizer = TfidfVectorizer(max_features=5000) 
     X_train_matrix = vectorizer.fit_transform(X_train['processed_text'])
     X_valid_matrix = vectorizer.transform(X_valid['processed_text'])
     X_test_matrix = vectorizer.transform(X_test['processed_text'])

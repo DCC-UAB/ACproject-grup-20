@@ -41,3 +41,4 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
     evaluar(y_test, predictions)
 
     return predictions
+
