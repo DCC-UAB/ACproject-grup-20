@@ -2,6 +2,7 @@
 #ELIMINAR LLETRES SUELTES RANDOM??
 #podem treure directament els tres elements amb altre idioma???
 #5000 vect0ritzacio suficient???
+#utlitzar diccionari paraules bones/dolentes com a regla o pes? nse si es massa bias
 
 import time
 import re
@@ -19,7 +20,7 @@ import KNN
 import NB
 
 # Selecció model: KNN, LR, NB, RF, SVM
-MODEL_CHOICE = 'NB' 
+MODEL_CHOICE = 'LR' 
 model_modules = {
     "LR": LR,
     "SVM": SVM,
@@ -81,9 +82,9 @@ def load_and_preprocess_data(data_path):
     X_valid = pd.read_csv(f'{data_path}Valid.csv')
     X_test = pd.read_csv(f'{data_path}Test.csv')
 
-    #X_train = X_train.head(5000)
-    #X_valid = X_valid.head(1000)
-    #X_test = X_test.head(1000)
+    #X_train = X_train.head(10000)
+    #X_valid = X_valid.head(2000)
+    #X_test = X_test.head(2000)
 
     # Preprocessament
     X_train = preprocess_pipeline(X_train, 'text')

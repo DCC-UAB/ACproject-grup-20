@@ -1,3 +1,5 @@
+#implementar class NB?
+#diferetns valors alfa i fit_priori com un gridsearch??
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
@@ -26,7 +28,7 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
     Entrena un model Naive Bayes, genera les prediccions,
     i crida la funció 'evaluar' per mostrar els resultats.
     """
-    # Definir el model
+    # Definir el model: MULTINOMIAL (sutilitza en text)
     model = MultinomialNB()
     
     # Entrenar el model
