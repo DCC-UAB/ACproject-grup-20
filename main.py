@@ -2,6 +2,9 @@
 #accuracy/precision o quin metrica a assolir i a quan
 #stemming: no aporta info fent lemm(LR: acc 89,00 stemming, acc 88,98 sense stemming)
 
+
+#Fer final: funcio que compari amb grafiques la forma mes optima de cada model
+
 #NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
 import time
 import re
