@@ -1,6 +1,8 @@
 #podem treure directament els tres elements amb altre idioma???
-#NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
+#accuracy/precision o quin metrica a assolir i a quan
+#stemming: no aporta info fent lemm(LR: acc 89,00 stemming, acc 88,98 sense stemming)
 
+#NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
 import time
 import re
 import pandas as pd
@@ -48,7 +50,7 @@ def normalize_text(text):   #REVISAR FUNCIO
 
 # Inicialitzar el lematitzador i el stemmer
 lemmatizer = WordNetLemmatizer()
-stemmer = PorterStemmer()
+#stemmer = PorterStemmer()
 
 def lemmatize_and_stem(text): #MODIFICAR
     """
@@ -58,7 +60,7 @@ def lemmatize_and_stem(text): #MODIFICAR
     # Lematitzar
     lemmatized = [lemmatizer.lemmatize(word) for word in tokens]
     # Stemming
-    lemmatized = [stemmer.stem(word) for word in lemmatized]
+    #lemmatized = [stemmer.stem(word) for word in lemmatized]
     return " ".join(lemmatized)
 
 # Pipeline de preprocessament
@@ -102,7 +104,7 @@ def convert_to_numeric_matrices(X_train, X_valid, X_test):
     """
     Converteix els textos preprocessats en matrius numèriques utilitzant TF-IDF.
     """
-    vectorizer = TfidfVectorizer(max_features=5000)  # ajustar el nombre de features
+    vectorizer = TfidfVectorizer(max_features=5000)
     X_train_matrix = vectorizer.fit_transform(X_train['processed_text'])
     X_valid_matrix = vectorizer.transform(X_valid['processed_text'])
     X_test_matrix = vectorizer.transform(X_test['processed_text'])
