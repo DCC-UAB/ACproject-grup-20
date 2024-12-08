@@ -22,7 +22,7 @@ import KNN
 import NB
 
 # Selecció model: KNN, LR, NB, RF, SVM
-MODEL_CHOICE = 'LR' 
+MODEL_CHOICE = 'KNN' 
 model_modules = {
     "LR": LR,
     "SVM": SVM,
@@ -32,8 +32,8 @@ model_modules = {
 }
 
 # path carpeta
-DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
-#DATA_PATH = 
+#DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
+DATA_PATH = 'C:/Users/twitc/OneDrive/Desktop/Dataset/'
 #DATA_PATH = 
 
 # Normalització del text
