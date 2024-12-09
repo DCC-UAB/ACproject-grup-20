@@ -84,10 +84,6 @@ def load_and_preprocess_data(data_path):
     X_valid = pd.read_csv(f'{data_path}Valid.csv')
     X_test = pd.read_csv(f'{data_path}Test.csv')
 
-    #X_train = X_train.head(5000)
-    #X_valid = X_valid.head(2000)
-    #X_test = X_test.head(2000)
-
     # Preprocessament
     X_train = preprocess_pipeline(X_train, 'text')
     X_valid = preprocess_pipeline(X_valid, 'text')
@@ -115,11 +111,10 @@ def convert_to_numeric_matrices(X_train, X_valid, X_test):
 
 def main():
     start_time = time.time()
-
     # Carregar i processar les dades
     X_train, y_train, X_valid, y_valid, X_test, y_test = load_and_preprocess_data(DATA_PATH)
     processar_time = time.time()
-    print('temps preocessar', processar_time - start_time)
+    print('Temps trigat a processar les dades :', processar_time - start_time)
 
     # Convertir a matrius numèriques
     X_train_matrix, X_valid_matrix, X_test_matrix, vectorizer = convert_to_numeric_matrices(X_train, X_valid, X_test)
