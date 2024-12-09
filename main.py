@@ -1,6 +1,6 @@
 #podem treure directament els tres elements amb altre idioma???
 #accuracy/precision o quin metrica a assolir i a quan
-#stemming: no aporta info fent lemm(LR: acc 89,00 stemming, acc 88,98 sense stemming)
+#stemming: no aporta info fent lemm(LR: acc 89,00 stemming, acc 88,98 sense stemming) -> Stemming deleted
 
 
 #Fer final: funcio que compari amb grafiques la forma mes optima de cada model
@@ -51,27 +51,23 @@ def normalize_text(text):   #REVISAR FUNCIO
     filtered_words = [word for word in words if word not in stop_words]
     return " ".join(filtered_words)
 
-# Inicialitzar el lematitzador i el stemmer
+# Inicialitzar el lematitzador
 lemmatizer = WordNetLemmatizer()
-#stemmer = PorterStemmer()
 
-def lemmatize_and_stem(text): #MODIFICAR
+def lemmatize(text): #MODIFICAR
     """
-    Funció per lematitzar i aplicar stemming.
+    Funció per lematitzar.
     """
     tokens = word_tokenize(text)
-    # Lematitzar
     lemmatized = [lemmatizer.lemmatize(word) for word in tokens]
-    # Stemming
-    #lemmatized = [stemmer.stem(word) for word in lemmatized]
     return " ".join(lemmatized)
 
 # Pipeline de preprocessament
 def preprocess_pipeline(data, column_name):
     """
-    Funció que aplica la normalització i la lematització/stemming al dataset.
+    Funció que aplica la normalització i la lematització al dataset.
     """
-    data['processed_text'] = data['text'].apply(lambda x: lemmatize_and_stem(normalize_text(x)))
+    data['processed_text'] = data['text'].apply(lambda x: lemmatize(normalize_text(x)))
     return data
 
 #carregar i preprocessar dades
