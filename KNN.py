@@ -32,7 +32,7 @@ def evaluar(y_true, y_pred):
     plt.ylabel('Valors Reals')
     plt.show()
 
-def mostrar_curves_roc_precisio_recall(y_true, y_prob):
+def mostrar_curves_roc_precisio_recall(y_true, y_prob): # Implementada al model de forma temporal per fer testing
     """
     Mostra la corba ROC i la corba de precisió-recall.
     """
@@ -46,7 +46,7 @@ def mostrar_curves_roc_precisio_recall(y_true, y_prob):
 
     plt.figure(figsize=(14, 6))
 
-    # ROC Curve
+    # Plot Corba ROC
     plt.subplot(1, 2, 1)
     plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'AUC = {roc_auc:.2f}')
     plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
@@ -55,7 +55,7 @@ def mostrar_curves_roc_precisio_recall(y_true, y_prob):
     plt.ylabel('Tasa de veritables positius')
     plt.legend(loc='lower right')
 
-    # Precisión-Recall Curve
+    # Plot Corba de precisió-recall
     plt.subplot(1, 2, 2)
     plt.plot(recall, precision, color='blue', lw=2, label=f'AUC = {pr_auc:.2f}')
     plt.title('Curva de Precisión-Recall')
