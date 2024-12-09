@@ -3,8 +3,20 @@
 
 SETMANA 1 (respòs):
     - té sentit que utlitzem stemming i lemmatize alhora? 
-    RESPOSTA: En el nostre cas no. Un cop lemmatitzada una paraula, ja obtenim al seva forma base correcta. També hem comprobat que es perd la qualitat del text al stemmatitzar un cop lemmatitzat. A ProbaMini es mostra com no aporta informació nova (escurça paraules ja en la seva base) i alhora produeix moltes formes incorrectes de les respectives paraules. Per tant, l'ordre òptim és només utilitzar lemmatizer.
+    RESPOSTA: En el nostre cas no. 
+    Un cop lemmatitzada una paraula, ja obtenim al seva forma base correcta. 
+    També hem comprobat que es perd la qualitat del text al stemmatitzar un cop lemmatitzat. A ProbaMini es mostra com no aporta informació nova (escurça paraules ja en la seva base) i alhora produeix moltes formes incorrectes de les respectives paraules. 
+    Per tant, l'ordre òptim és només utilitzar lemmatizer.
 
 SETMANA 2 (preguntes a respondre a partir de la seguent sessió):
     - TFIDF dona pes a les paraules més rellevants segons la frequencia d'una paraula i la seva importancia global, indiferentment del seu significat. Al tractar amb comentaris positius o negatius, milloraria el model si multipliquessim certes paraules que escollirirem no arbitrariament? Per ex., family pot ser una paraula important que surt en molts commentaris (positius sobretot, per ex). Tot i això no mostra sentiment. Si multipliquessim les paraules que si que sabem que mostren sentiment (com good), apart de fer-les mes rellevants no fariem tambe més irrellevants la resta de paraules? Em refereixo a tenir un aventatge, no sé si milloraria el model. Tot i això, family potser no apareix tant com bad, i per tant, el propi vectorizer ja els dona els pesos correctes i no s'ha de tocar res. 
     RESPOSTA:
+    
+    Creiem que el model NO milloraria si multipliquessim certes paraules escollides principalment per 2 motius:
+    1. Introducció de biaix : Si multipliquem el pes de paraules manualment podriem introduir biaix en el model fent-lo dependre massa d'unes quantes paraules seleccionades, el qual podria portar a prediccions incorrectes en contextos on aquestes paraules tinguin un significat diferent.
+    2. Irrevelancies : Donar més pes a algunes paraules fa que la resta siguin menys rellevants lo qual no sempre és desitjable.
+    Per exemple, un text pot tenir una paraula clau (com good), però la resta del context també pot ser important per interpretar el sentiment global.
+
+    FALTA REALITZAR TESTS PER CONFIRMAR!!
+
+    Una alternativa que pensem que podria ser útil és l'ús de word embeddings. (?)
