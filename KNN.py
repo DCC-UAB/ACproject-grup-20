@@ -45,7 +45,7 @@ if __name__ == "__main__":
     print("Aquest script està destinat a ser importat al main.")
 
 """
-Primera execució model KNN
+Primera execució model KNN, n_neighbors=5
 temps preocessar 124.6710159778595
 
 Matriu de confusió:
