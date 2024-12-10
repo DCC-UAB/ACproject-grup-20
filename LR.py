@@ -1,5 +1,7 @@
 #llista max iters esta be?
+#tindria sentit fer un heatmap dels parametrees ? de quins? o tots
 
+import numpy as np
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
