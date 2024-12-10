@@ -1,19 +1,23 @@
 #llista max iters esta be?
 #tindria sentit fer un heatmap dels parametrees ? de quins? o tots
 
+################################FER: ALTRE METRICA A EVALUAR IGUAL QUE AL KNN
+
 import numpy as np
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, roc_auc_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 import time
 
-def evaluar(y_true, y_pred):
+EVALUATION_DIR = "C:/Users/marti/OneDrive/Escriptori/ProjecteAC/ACproject-grup-20/LR_evaluation"
+
+def evaluar(y_true, y_pred, y_proba):
     """
     Calcula i mostra la matriu de confusió i altres mètriques d'avaluació.
-    També genera una visualització (heatmap) de la matriu de confusió.
+    També genera visualitzacions (heatmap de la matriu de confusió i la ROC curve).
     """
     # Matriu de confusió
     cm = confusion_matrix(y_true, y_pred)
@@ -31,7 +35,6 @@ def evaluar(y_true, y_pred):
     print(f"Recall: {recall:.4f}")
     print(f"F1 Score: {f1:.4f}")
 
-    '''
     # Visualització de la matriu de confusió com a heatmap
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, 
@@ -39,8 +42,32 @@ def evaluar(y_true, y_pred):
     plt.title('Matriu de confusió')
     plt.xlabel('Prediccions')
     plt.ylabel('Valors reals')
-    plt.show()
-    '''
+
+    # Ruta completa a la carpeta d'evaluació
+    training_plot_path = os.path.join(EVALUATION_DIR, "matriu_confusio.png")
+    plt.savefig(training_plot_path)
+    print(f"Matriu de confusió guardada a {training_plot_path}")
+    plt.close()
+
+    # Càlcul de la curva ROC
+    fpr, tpr, _ = roc_curve(y_true, y_proba)
+    auc_score = roc_auc_score(y_true, y_proba)
+    print(f"\nAUC (Area Under the Curve): {auc_score:.4f}")
+
+    # Visualització de la curva ROC
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {auc_score:.2f})', color='blue')
+    plt.plot([0, 1], [0, 1], linestyle='--', color='gray')  # Línia diagonal
+    plt.xlabel('False Positive Rate (FPR)')
+    plt.ylabel('True Positive Rate (TPR)')
+    plt.title('ROC Curve')
+    plt.legend(loc='lower right')
+
+    # Guardar la ROC curve
+    roc_plot_path = os.path.join(EVALUATION_DIR, "roc_curve.png")
+    plt.savefig(roc_plot_path)
+    print(f"ROC curve guardada a {roc_plot_path}")
+    plt.close()
 
 def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
     """
@@ -54,11 +81,12 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
     # Entrenar el model
     model.fit(X_train, y_train)
     
-    # Generar prediccions
+    # Generar prediccions i probabilitats
     predictions = model.predict(X_test)
+    probabilities = model.predict_proba(X_test)[:, 1]  # Probabilitats per a la classe positiva
 
     # Avaluar resultats
-    evaluar(y_test, predictions)
+    evaluar(y_test, predictions, probabilities)
 
     return predictions
 
@@ -112,12 +140,9 @@ def entrena_prediu_i_evaluaGridSearch(X_train, y_train, X_test, y_test):
     # Mostrar els resultats d'avaluació
     for result in results:
         print(result)
-
-    # Ruta per guardar els resultats
-    evaluation_dir = "C:/Users/marti/OneDrive/Escriptori/ProjecteAC/ACproject-grup-20/LR_evaluation"
     
     # Guardar els resultats en un arxiu de text
-    result_file_path = os.path.join(evaluation_dir, "resultats_gridsearch.txt")
+    result_file_path = os.path.join(EVALUATION_DIR, "resultats_gridsearch.txt")
     with open(result_file_path, "w") as file:
         for result in results:
             file.write(result + "\n")
@@ -127,7 +152,6 @@ def entrena_prediu_i_evaluaGridSearch(X_train, y_train, X_test, y_test):
     print(clf_.__dict__.keys())
 
     return clf_
-
 
 #MAX_ITER
 def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test): 
@@ -141,13 +165,6 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
     accuracies = []
     precisions = []
     confusion_matrices = []
-
-    # Ruta completa a la carpeta d'evaluació
-    evaluation_dir = "C:/Users/marti/OneDrive/Escriptori/ProjecteAC/ACproject-grup-20/LR_evaluation"
-    
-    # Comprovar si la carpeta existeix; si no, crear-la
-    if not os.path.exists(evaluation_dir):
-        os.makedirs(evaluation_dir)
 
     for max_iter in max_iter_values:
         start_time = time.time()  # Mesura del temps d'entrenament
@@ -181,7 +198,7 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
     plt.xlabel('max_iter')
     plt.ylabel('Temps d\'entrenament (s)')
     plt.grid(True)
-    training_plot_path = os.path.join(evaluation_dir, "MAX_ITER_temps_entrenament.png")
+    training_plot_path = os.path.join(EVALUATION_DIR, "MAX_ITER_temps_entrenament.png")
     plt.savefig(training_plot_path)
     plt.close()
 
@@ -192,7 +209,7 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
     plt.xlabel('max_iter')
     plt.ylabel('Accuracy')
     plt.grid(True)
-    accuracy_plot_path = os.path.join(evaluation_dir, "MAX_ITER_accuracy.png")
+    accuracy_plot_path = os.path.join(EVALUATION_DIR, "MAX_ITER_accuracy.png")
     plt.savefig(accuracy_plot_path)
     plt.close()
 
@@ -203,7 +220,7 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
     plt.xlabel('max_iter')
     plt.ylabel('Precision')
     plt.grid(True)
-    precision_plot_path = os.path.join(evaluation_dir, "MAX_ITER_precision.png")
+    precision_plot_path = os.path.join(EVALUATION_DIR, "MAX_ITER_precision.png")
     plt.savefig(precision_plot_path)
     plt.close()
 
@@ -217,13 +234,14 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
         plt.title(f'Matriu de Confusió per max_iter={max_iter_values[i]}')
 
     # Desar la imatge amb les matrius de confusió
-    confusion_matrix_plot_path = os.path.join(evaluation_dir, "matrius_de_confusio.png")
+    confusion_matrix_plot_path = os.path.join(EVALUATION_DIR, "matrius_de_confusio.png")
     plt.tight_layout()
     plt.savefig(confusion_matrix_plot_path)
     plt.close()
 
-    print(f"Gràfiques desades a {evaluation_dir}")
+    print(f"Gràfiques desades")
 
+#C
 def entrena_prediu_i_evaluaImpactC(X_train, y_train, X_test, y_test):
     """
     Entrena un model de regressió logística amb diferents valors de C, 
@@ -239,9 +257,6 @@ def entrena_prediu_i_evaluaImpactC(X_train, y_train, X_test, y_test):
     precisions = []
     f1_scores = []
     recalls = []
-
-    # Ruta completa a la carpeta d'evaluació
-    evaluation_dir = "C:/Users/marti/OneDrive/Escriptori/ProjecteAC/ACproject-grup-20/LR_evaluation"
 
     # Entrenar i avaluar el model per cada valor de C
     for C in C_values:
@@ -279,7 +294,7 @@ def entrena_prediu_i_evaluaImpactC(X_train, y_train, X_test, y_test):
     plt.ylabel('Mètriques')
     plt.legend()
     plt.grid(True)
-    metrics_plot_path = os.path.join(evaluation_dir, "C_metrics.png")
+    metrics_plot_path = os.path.join(EVALUATION_DIR, "C_metrics.png")
     plt.savefig(metrics_plot_path)
     plt.close()
 
@@ -290,17 +305,11 @@ def entrena_prediu_i_evaluaImpactC(X_train, y_train, X_test, y_test):
     plt.xlabel('Valor de C')
     plt.ylabel('Temps d\'entrenament (s)')
     plt.grid(True)
-    time_plot_path = os.path.join(evaluation_dir, "C_temps.png")
+    time_plot_path = os.path.join(EVALUATION_DIR, "C_temps.png")
     plt.savefig(time_plot_path)
     plt.close()
 
-    print(f"Gràfiques desades a {evaluation_dir}")
-
-
-
-
-
-
+    print(f"Gràfiques desades")
 
 ###############################################################################################
 

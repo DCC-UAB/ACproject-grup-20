@@ -3,7 +3,7 @@
 #stemming: no aporta info fent lemm(LR: acc 89,00 stemming, acc 88,98 sense stemming)
 #evaluacio respecte % en train fa falta??
 #com implementar validation
-
+#word embedding
 
 #Fer final: funcio que compari amb grafiques la forma mes optima de cada model
 
@@ -24,7 +24,7 @@ import KNN
 import NB
 
 # Selecció model: KNN, LR, NB, RF, SVM
-MODEL_CHOICE = 'NB' 
+MODEL_CHOICE = 'LR' 
 model_modules = {
     "LR": LR,
     "SVM": SVM,
