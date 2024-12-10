@@ -1,5 +1,7 @@
-#implementar class NB?
 #diferetns valors alfa i fit_priori com un gridsearch??
+#probar diferents a mulitnomial? ja que es text
+
+
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
