@@ -38,11 +38,11 @@ temps preocessar 109.44386577606201
 Matriu de confusió:
 [[1727  768]
  [ 481 2024]]
-![Matriu de confusió](CM_KNN.png)
+![Matriu de confusió](KNN_evaluation/CM_KNN.png)
 Accuracy: 0.7502
 Precision: 0.7535
 Recall: 0.7502
-![Curva ROC + Precision-Recall](ROC_PRECISIONRECALL_KNN.png)
+![Curva ROC + Precision-Recall](KNN_evaluation/ROC_PRECISIONRECALL_KNN.png)
 F1 Score: 0.7493
 temps entrenament 150.65066742897034
 
@@ -52,11 +52,11 @@ Temps trigat a processar les dades : 122.23539853096008
 Matriu de confusió:
 [[1907  588]
  [ 519 1986]]
-![Matriu de confusió](CM_KNN20.png)
+![Matriu de confusió](KNN_evaluation/CM_KNN20.png)
 Accuracy: 0.7786
 Precision: 0.7788
 Recall: 0.7786
-![Curva ROC + Precision-Recall](ROC_PRECISIONRECALL_KNN20.png)
+![Curva ROC + Precision-Recall](KNN_evaluation/ROC_PRECISIONRECALL_KNN20.png)
 F1 Score: 0.7786
 temps entrenament 156.88142585754395
 ### 1.2 LR
