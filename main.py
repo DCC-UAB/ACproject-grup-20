@@ -2,6 +2,7 @@
 #accuracy/precision o quin metrica a assolir i a quan
 #stemming: no aporta info fent lemm(LR: acc 89,00 stemming, acc 88,98 sense stemming)
 #evaluacio respecte % en train fa falta??
+#com implementar validation
 
 
 #Fer final: funcio que compari amb grafiques la forma mes optima de cada model
@@ -23,7 +24,7 @@ import KNN
 import NB
 
 # Selecció model: KNN, LR, NB, RF, SVM
-MODEL_CHOICE = 'LR' 
+MODEL_CHOICE = 'NB' 
 model_modules = {
     "LR": LR,
     "SVM": SVM,
@@ -90,9 +91,9 @@ def load_and_preprocess_data(data_path):
     X_valid = preprocess_pipeline(X_valid, 'text')
     X_test = preprocess_pipeline(X_test, 'text')
 
-    X_train = X_train.head(2000)
-    X_valid = X_valid.head(1000)
-    X_test = X_test.head(1000)
+    #X_train = X_train.head(2000)
+    #X_valid = X_valid.head(1000)
+    #X_test = X_test.head(1000)
 
     y_train = X_train['label']
     y_valid = X_valid['label']
@@ -128,9 +129,10 @@ def main():
     if MODEL_CHOICE not in model_modules:
         raise ValueError(f"Model no reconegut: {MODEL_CHOICE}")
     model_module = model_modules[MODEL_CHOICE]
+    print('model utilitzat:', MODEL_CHOICE)
     
     #entrenar i predir
-    y_pred = getattr(model_module, "entrena_prediu_i_evaluaImpactC")(X_train_matrix, y_train, X_test_matrix, y_test)
+    y_pred = getattr(model_module, "entrena_prediu_i_evalua")(X_train_matrix, y_train, X_test_matrix, y_test)
     entrenaripredir_time = time.time()
     print('temps entrenament', entrenaripredir_time - processar_time)
 
