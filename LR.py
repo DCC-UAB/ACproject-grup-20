@@ -1,5 +1,6 @@
-#si faig gridsearch, fa falta comprobar unicament amb valors diferents de c?
+#llista max iters esta be?
 
+import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
@@ -59,10 +60,17 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
 
     return predictions
 
+
+##############################################################################################
+#EVALUACIÓ PARÀMETRES
+##############################################################################################
+
+
+#GRIDSEARCH
 def entrena_prediu_i_evaluaGridSearch(X_train, y_train, X_test, y_test):
     """
     Entrena un model de regressió logística amb GridSearchCV per buscar els millors hiperparàmetres,
-    avalua el millor model trobat i mostra els resultats.
+    avalua el millor model trobat i mostra els resultats, i els desa en un fitxer de text.
     """
     # Definir l'espai de cerca dels hiperparàmetres
     parameters = {
@@ -91,15 +99,26 @@ def entrena_prediu_i_evaluaGridSearch(X_train, y_train, X_test, y_test):
     test_score = clf_.score(X_test, y_test)   # Accuracy sobre el conjunt de test
     train_score = clf_.score(X_train, y_train) # Accuracy sobre el conjunt d'entrenament
 
+    # Resultats a imprimir
+    results = [
+        f"Accuracy sobre el conjunt de test: {test_score:.4f}",
+        f"Accuracy sobre el conjunt d'entrenament: {train_score:.4f}",
+        f"Millor accuracy en validacio creuada: {clf_.best_score_:.4f}",
+        f"Millors hiperparametres trobats: {clf_.best_params_}"
+    ]
+
     # Mostrar els resultats d'avaluació
-    print(f"Accuracy sobre el conjunt de test: {test_score:.4f}")
-    print(f"Accuracy sobre el conjunt d'entrenament: {train_score:.4f}")
+    for result in results:
+        print(result)
 
-    # Millor puntuació obtinguda durant la validació creuada
-    print(f"Millor accuracy en validació creuada: {clf_.best_score_:.4f}")
-
-    # Millor combinació d'hiperparàmetres trobada
-    print("Millors hiperparàmetres trobats:", clf_.best_params_)
+    # Ruta per guardar els resultats
+    evaluation_dir = "C:/Users/marti/OneDrive/Escriptori/ProjecteAC/ACproject-grup-20/LR_evaluation"
+    
+    # Guardar els resultats en un arxiu de text
+    result_file_path = os.path.join(evaluation_dir, "resultats_gridsearch.txt")
+    with open(result_file_path, "w") as file:
+        for result in results:
+            file.write(result + "\n")
 
     # Exploració dels atributs interns del model GridSearchCV
     print("Claus disponibles a l'objecte GridSearchCV:")
@@ -107,15 +126,26 @@ def entrena_prediu_i_evaluaGridSearch(X_train, y_train, X_test, y_test):
 
     return clf_
 
-def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test): #MODIFICAR VALORS MAX ITER
+
+#MAX_ITER
+def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test): 
     """
     Entrena el model de regressió logística amb diferents valors de max_iter
-    i mostra com afecta al temps d'entrenament i a l'accuracy.
+    i mostra com afecta al temps d'entrenament, l'accuracy, la precision, i genera matrius de confusió.
     """
-    max_iter_values = [100, 500, 1000, 2000, 5000]
+    max_iter_values = [10, 25, 50, 100, 500, 1000, 2000, 5000]
 
     training_times = []
     accuracies = []
+    precisions = []
+    confusion_matrices = []
+
+    # Ruta completa a la carpeta d'evaluació
+    evaluation_dir = "C:/Users/marti/OneDrive/Escriptori/ProjecteAC/ACproject-grup-20/LR_evaluation"
+    
+    # Comprovar si la carpeta existeix; si no, crear-la
+    if not os.path.exists(evaluation_dir):
+        os.makedirs(evaluation_dir)
 
     for max_iter in max_iter_values:
         start_time = time.time()  # Mesura del temps d'entrenament
@@ -132,18 +162,143 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test): #MODIFICAR
         accuracy = accuracy_score(y_test, y_pred)
         accuracies.append(accuracy)
 
-        print(f"max_iter={max_iter}: temps={training_time:.2f} segons, accuracy={accuracy:.4f}")
+        # Precision
+        precision = precision_score(y_test, y_pred, average='binary')  # Pots canviar a 'macro' o 'micro' si tens més de 2 classes
+        precisions.append(precision)
 
-    # Gràfica dels resultats
+        # Matriu de confusió
+        conf_matrix = confusion_matrix(y_test, y_pred)
+        confusion_matrices.append(conf_matrix)
+
+        print(f"max_iter={max_iter}: temps={training_time:.2f} segons, accuracy={accuracy:.4f}, precision={precision:.4f}")
+
+    # Gràfica del temps d'entrenament
     plt.figure(figsize=(10, 6))
-    plt.plot(max_iter_values, training_times, label='Temps d\'entrenament (s)', marker='o', color='blue')
-    plt.plot(max_iter_values, accuracies, label='Accuracy', marker='o', color='orange')
-    plt.title('Impacte de max_iter en el temps d\'entrenament i l\'accuracy')
+    plt.plot(max_iter_values, training_times, marker='o', color='blue')
+    plt.title('Impacte de max_iter en el temps d\'entrenament')
     plt.xlabel('max_iter')
-    plt.ylabel('Temps (s) / Accuracy')
+    plt.ylabel('Temps d\'entrenament (s)')
+    plt.grid(True)
+    training_plot_path = os.path.join(evaluation_dir, "MAX_ITER_temps_entrenament.png")
+    plt.savefig(training_plot_path)
+    plt.close()
+
+    # Gràfica de l'accuracy
+    plt.figure(figsize=(10, 6))
+    plt.plot(max_iter_values, accuracies, marker='o', color='orange')
+    plt.title('Impacte de max_iter en l\'accuracy')
+    plt.xlabel('max_iter')
+    plt.ylabel('Accuracy')
+    plt.grid(True)
+    accuracy_plot_path = os.path.join(evaluation_dir, "MAX_ITER_accuracy.png")
+    plt.savefig(accuracy_plot_path)
+    plt.close()
+
+    # Gràfica de la precision
+    plt.figure(figsize=(10, 6))
+    plt.plot(max_iter_values, precisions, marker='o', color='green')
+    plt.title('Impacte de max_iter en la precision')
+    plt.xlabel('max_iter')
+    plt.ylabel('Precision')
+    plt.grid(True)
+    precision_plot_path = os.path.join(evaluation_dir, "MAX_ITER_precision.png")
+    plt.savefig(precision_plot_path)
+    plt.close()
+
+    # Matrius de confusió
+    plt.figure(figsize=(15, 12))
+
+    # Configurar per 2 files i 4 columnes per a 8 subgràfics
+    for i, conf_matrix in enumerate(confusion_matrices):
+        plt.subplot(2, 4, i + 1)  # 2 files, 4 columnes
+        sns.heatmap(conf_matrix, annot=True, fmt="d", cmap='Blues', xticklabels=['Predicció 0', 'Predicció 1'], yticklabels=['Real 0', 'Real 1'])
+        plt.title(f'Matriu de Confusió per max_iter={max_iter_values[i]}')
+
+    # Desar la imatge amb les matrius de confusió
+    confusion_matrix_plot_path = os.path.join(evaluation_dir, "matrius_de_confusio.png")
+    plt.tight_layout()
+    plt.savefig(confusion_matrix_plot_path)
+    plt.close()
+
+    print(f"Gràfiques desades a {evaluation_dir}")
+
+def entrena_prediu_i_evaluaImpactC(X_train, y_train, X_test, y_test):
+    """
+    Entrena un model de regressió logística amb diferents valors de C, 
+    mostra com afecta al temps d'entrenament, l'accuracy, precision, F1 score i recall,
+    i genera les gràfiques de línies per mostrar aquests efectes en funció del valor de C.
+    """
+    # Definir els valors de C a provar
+    C_values = [0.01, 0.1, 1, 10, 100, 1000]
+
+    # Llistes per emmagatzemar els resultats
+    training_times = []
+    accuracies = []
+    precisions = []
+    f1_scores = []
+    recalls = []
+
+    # Ruta completa a la carpeta d'evaluació
+    evaluation_dir = "C:/Users/marti/OneDrive/Escriptori/ProjecteAC/ACproject-grup-20/LR_evaluation"
+
+    # Entrenar i avaluar el model per cada valor de C
+    for C in C_values:
+        start_time = time.time()  # Mesura del temps d'entrenament
+        model = LogisticRegression(max_iter=1000, C=C, penalty='l2', solver='liblinear')
+        model.fit(X_train, y_train)
+        end_time = time.time()
+
+        # Temps d'entrenament
+        training_time = end_time - start_time
+        training_times.append(training_time)
+
+        # Predicció i càlcul de mètriques
+        y_pred = model.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred, average='binary')  # Precision per a classificació binària
+        f1 = f1_score(y_test, y_pred, average='binary')  # F1 score per a classificació binària
+        recall = recall_score(y_test, y_pred, average='binary')  # Recall per a classificació binària
+
+        accuracies.append(accuracy)
+        precisions.append(precision)
+        f1_scores.append(f1)
+        recalls.append(recall)
+
+        print(f"C={C}: Temps={training_time:.2f} segons, Accuracy={accuracy:.4f}, Precision={precision:.4f}, F1={f1:.4f}, Recall={recall:.4f}")
+
+    # Gràfica de les mètriques (Accuracy, Precision, F1 Score, Recall) en funció de C
+    plt.figure(figsize=(10, 6))
+    plt.plot(C_values, accuracies, marker='o', label='Accuracy', color='blue')
+    plt.plot(C_values, precisions, marker='o', label='Precision', color='red')
+    plt.plot(C_values, f1_scores, marker='o', label='F1 Score', color='green')
+    plt.plot(C_values, recalls, marker='o', label='Recall', color='purple')
+    plt.title('Impacte de C en Accuracy, Precision, F1 Score i Recall')
+    plt.xlabel('Valor de C')
+    plt.ylabel('Mètriques')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    metrics_plot_path = os.path.join(evaluation_dir, "C_metrics.png")
+    plt.savefig(metrics_plot_path)
+    plt.close()
+
+    # Gràfica del temps d'entrenament en funció de C
+    plt.figure(figsize=(10, 6))
+    plt.plot(C_values, training_times, marker='o', color='orange')
+    plt.title('Impacte de C en el temps d\'entrenament')
+    plt.xlabel('Valor de C')
+    plt.ylabel('Temps d\'entrenament (s)')
+    plt.grid(True)
+    time_plot_path = os.path.join(evaluation_dir, "C_temps.png")
+    plt.savefig(time_plot_path)
+    plt.close()
+
+    print(f"Gràfiques desades a {evaluation_dir}")
+
+
+
+
+
+
 
 ###############################################################################################
 
@@ -164,11 +319,6 @@ temps entrenament 4144.591024875641
 
 #a fer:
 '''
-Impacte del paràmetre C:
-Gràfica de línies mostrant com varia l'accuracy, el F1 Score o altres mètriques en funció del valor de C.
-Eix X: Valors de C.
-Eix Y: Mètrica (accuracy, F1, etc.).
-
 Anàlisi de l'espai de cerca:
 Heatmap que mostri l'accuracy obtinguda en funció de dos hiperparàmetres (p. ex., penalty i solver).
 '''
