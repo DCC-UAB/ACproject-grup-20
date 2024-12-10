@@ -24,7 +24,7 @@ import KNN
 import NB
 
 # Selecció model: KNN, LR, NB, RF, SVM
-MODEL_CHOICE = 'NB' 
+MODEL_CHOICE = 'SVM' 
 model_modules = {
     "LR": LR,
     "SVM": SVM,
@@ -34,9 +34,9 @@ model_modules = {
 }
 
 # path carpeta
-DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
+#DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
 #DATA_PATH = 'C:/Users/twitc/OneDrive/Desktop/Dataset/'
-#DATA_PATH = 
+DATA_PATH = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
 
 # Normalització del text
 def normalize_text(text):   #REVISAR FUNCIO

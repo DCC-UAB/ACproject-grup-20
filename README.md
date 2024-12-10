@@ -12,9 +12,13 @@ SETMANA 1 (respòs):
     - sense probar grans combinacions amb els respectius parametres de cada model, quin té una millor accuracy i/o precission? (funcio entrenaprediuievalua a seques)
     LR: accuracy: 0.8898, precision: 0.8899
     NB: accuracy: 0.8646, precision: 0.8647
-    RF:
+    RF: accuracy: 0.8404, precision: 0.8422
     KNN:
-    SVM:
+    SVM: ccuracy: 0.8874, precision0: 0.89; precision1: 0.88
+
+    En cuanto al svm tenemos dos precisiones: una para la clase 0 y otra para la clase 1.
+    Para la clase 0 todas las predicciones como 0, el 89% eran correctas.
+    Para la clase 1 todas las predicciones como 1, el 88% eran correctas.
 
 
     - s'eviten les paraules innecessàries en el preprocessament, apart de símbols i usuaris? 
@@ -47,6 +51,7 @@ SETMANA 2 (preguntes a respondre a partir de la seguent sessió):
     RESPOSTA: el model convergeix abans d'aarribar al nombre màxim d'iteracions. 
     Probar: El model és molt bo des de l'inici.El conjunt de dades és senzill. Problemes d'optimització del model.Regularització.Paràmetres del model i la qualitat del model.Desajust entre les mètriques de rendiment.
 
+    Porque 
 
 
     SETMANA 3:
