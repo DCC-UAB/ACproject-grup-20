@@ -53,27 +53,23 @@ def normalize_text(text):   #REVISAR FUNCIO
     filtered_words = [word for word in words if word not in stop_words]
     return " ".join(filtered_words)
 
-# Inicialitzar el lematitzador i el stemmer
+# Inicialitzar el lematitzador
 lemmatizer = WordNetLemmatizer()
-#stemmer = PorterStemmer()
 
-def lemmatize_and_stem(text):
+def lemmatize(text):
     """
-    Funció per lematitzar i aplicar stemming.
+    Funció per lematitzar.
     """
     tokens = word_tokenize(text)
-    # Lematitzar
     lemmatized = [lemmatizer.lemmatize(word) for word in tokens]
-    # Stemming
-    #lemmatized = [stemmer.stem(word) for word in lemmatized]
     return " ".join(lemmatized)
 
 # Pipeline de preprocessament
 def preprocess_pipeline(data, column_name):
     """
-    Funció que aplica la normalització i la lematització/stemming al dataset.
+    Funció que aplica la normalització i la lematització al dataset.
     """
-    data['processed_text'] = data['text'].apply(lambda x: lemmatize_and_stem(normalize_text(x)))
+    data['processed_text'] = data['text'].apply(lambda x: lemmatize(normalize_text(x)))
     return data
 
 #carregar i preprocessar dades
