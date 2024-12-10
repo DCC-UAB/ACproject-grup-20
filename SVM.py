@@ -1,56 +1,81 @@
-from sklearn.svm import LinearSVC
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import os
+import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.svm import LinearSVC
+from sklearn.calibration import CalibratedClassifierCV  # Para obtener probabilidades
+from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score, accuracy_score, precision_score, recall_score, f1_score
 
-def evaluar(y_true, y_pred):
+# Directorio para guardar los gráficos
+EVALUATION_DIR = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
+os.makedirs(EVALUATION_DIR, exist_ok=True)
+
+def evaluar(y_true, y_pred, y_proba):
     """
-    Calcula y muestra la matriz de confusión y otras métricas de evaluación.
+    Calcula y muestra la matriz de confusión, métricas y genera la curva ROC.
     """
+    # Matriz de confusión
     cm = confusion_matrix(y_true, y_pred)
-    print("\nMatriz de Confusión:")
+    print("\nMatriz de confusión:")
     print(cm)
-    
+
+    # Métricas
     accuracy = accuracy_score(y_true, y_pred)
-    print(f"\nAccuracy: {accuracy:.4f}")
-    print("\nReporte de Clasificación:")
-    print(classification_report(y_true, y_pred))
+    precision = precision_score(y_true, y_pred, average='weighted')
+    recall = recall_score(y_true, y_pred, average='weighted')
+    f1 = f1_score(y_true, y_pred, average='weighted')
     
-    # Visualización de la matriz de confusión
+    print(f"\nAccuracy: {accuracy:.4f}")
+    print(f"Precision: {precision:.4f}")
+    print(f"Recall: {recall:.4f}")
+    print(f"F1 Score: {f1:.4f}")
+
+    # Visualizar y guardar la matriz de confusión
     plt.figure(figsize=(8, 6))
-    plt.imshow(cm, cmap='Blues', interpolation='nearest')
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, 
+                xticklabels=set(y_true), yticklabels=set(y_true))
     plt.title('Matriz de Confusión')
-    plt.colorbar()
-    plt.xlabel('Predicción')
-    plt.ylabel('Real')
-    plt.xticks([0, 1], ['Negativo', 'Positivo'])
-    plt.yticks([0, 1], ['Negativo', 'Positivo'])
-    for i in range(len(cm)):
-        for j in range(len(cm[i])):
-            plt.text(j, i, cm[i][j], ha="center", va="center", color="black")
-    plt.show()
+    plt.xlabel('Predicciones')
+    plt.ylabel('Valores Reales')
+    confusion_path = os.path.join(EVALUATION_DIR, "matriz_confusion.png")
+    plt.savefig(confusion_path)
+    print(f"Matriz de confusión guardada en {confusion_path}")
+    plt.close()
+
+    # Cálculo y visualización de la curva ROC
+    fpr, tpr, _ = roc_curve(y_true, y_proba)
+    auc_score = roc_auc_score(y_true, y_proba)
+    print(f"\nAUC (Area Under the Curve): {auc_score:.4f}")
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {auc_score:.2f})', color='blue')
+    plt.plot([0, 1], [0, 1], linestyle='--', color='gray')
+    plt.xlabel('Tasa de Falsos Positivos (FPR)')
+    plt.ylabel('Tasa de Verdaderos Positivos (TPR)')
+    plt.title('Curva ROC')
+    plt.legend(loc='lower right')
+    roc_path = os.path.join(EVALUATION_DIR, "roc_curve.png")
+    plt.savefig(roc_path)
+    print(f"Curva ROC guardada en {roc_path}")
+    plt.close()
 
 def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
     """
-    Entrena un modelo LinearSVC con parámetros predefinidos,
-    genera predicciones y evalúa los resultados.
+    Entrena un modelo LinearSVC, genera las predicciones y llama a 'evaluar'.
     """
-    # Parámetros del modelo
-    svm_params = {
-        "C": 1.0,           # Parámetro de regularización
-        "max_iter": 1000,   # Número máximo de iteraciones
-        "random_state": 42  # Semilla para reproducibilidad
-    }
+    # Crear el modelo LinearSVC
+    base_model = LinearSVC(C=1.0, max_iter=5000, random_state=42)
 
-    print(f"Entrenando LinearSVC con parámetros: {svm_params}")
+    # Calibrar el modelo para obtener probabilidades
+    model = CalibratedClassifierCV(base_model, cv=5)
     
-    # Crear y entrenar el modelo
-    model = LinearSVC(**svm_params)
+    # Entrenar el modelo
     model.fit(X_train, y_train)
     
-    # Generar predicciones
-    y_pred = model.predict(X_test)
-    
-    # Evaluar el modelo
-    evaluar(y_test, y_pred)
-    
-    return y_pred
+    # Generar predicciones y probabilidades
+    predictions = model.predict(X_test)
+    probabilities = model.predict_proba(X_test)[:, 1]  # Probabilidades para la clase positiva
+
+    # Evaluar resultados
+    evaluar(y_test, predictions, probabilities)
+
+    return predictions
