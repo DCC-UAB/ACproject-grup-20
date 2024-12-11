@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Acabar de revisar implementació cross validation, revisar grafiques
-# Trobar millor k (neighbors) per executar i analitzar grafiques
+# Trobar millor k (neighbors) per executar i analitzar grafiques --> XValidation
 
 def evaluar(y_true, y_pred):
     """
@@ -97,17 +97,17 @@ def mostrar_curves_roc_precisio_recall(y_true, y_prob): # Implementada al model 
     plt.tight_layout()
     plt.show()
 
-def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test, max_k=30):
+def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test): #max_k=200
     """
     Troba el millor valor de n_neighbors, entrena un model K-Nearest Neighbors,
     genera les prediccions i crida les funcions per avaluar i mostrar gràfiques.
     """
-    # Trobar el millor valor de n_neighbors
-    millor_k, _ = trobar_millor_n_neighbors(X_train, y_train, max_k)
-    print(f"Entrenant amb el millor k={millor_k}...")
+    # # Trobar el millor valor de n_neighbors
+    # millor_k, _ = trobar_millor_n_neighbors(X_train, y_train, max_k)
+    # print(f"Entrenant amb el millor k={millor_k}...")
 
     # Definir el model amb el millor k
-    model = KNeighborsClassifier(n_neighbors=millor_k)
+    model = KNeighborsClassifier(n_neighbors=200) #n_neighbors=millor_k
 
     # Entrenar el model
     model.fit(X_train, y_train)
