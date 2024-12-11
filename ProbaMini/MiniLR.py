@@ -14,8 +14,6 @@ def evaluar(y_true, y_pred):
     """
     # Matriu de confusió
     cm = confusion_matrix(y_true, y_pred)
-    print("\nMatriu de confusió:")
-    print(cm)
 
     # Mètriques
     accuracy = accuracy_score(y_true, y_pred)
@@ -28,7 +26,7 @@ def evaluar(y_true, y_pred):
     print(f"Recall: {recall:.4f}")
     print(f"F1 Score: {f1:.4f}")
 
-    '''
+    
     # Visualització de la matriu de confusió com a heatmap
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, 
@@ -37,7 +35,7 @@ def evaluar(y_true, y_pred):
     plt.xlabel('Prediccions')
     plt.ylabel('Valors reals')
     plt.show()
-    '''
+    
 
 def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
     """

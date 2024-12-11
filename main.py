@@ -5,6 +5,8 @@
 #com implementar validation
 #word embedding (relacions semantiques(sig) i sintactiques)
 
+#BOOSTRAP, BAGGING, BOOSTING, CROSS VALIDATION
+
 #Fer final: funcio que compari amb grafiques la forma mes optima de cada model
 
 #NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
