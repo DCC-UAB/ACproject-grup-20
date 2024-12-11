@@ -3,7 +3,7 @@
 #stemming: no aporta info fent lemm(LR: acc 89,00 stemming, acc 88,98 sense stemming)
 #evaluacio respecte % en train fa falta??
 #com implementar validation
-#word embedding
+#word embedding (relacions semantiques(sig) i sintactiques)
 
 #Fer final: funcio que compari amb grafiques la forma mes optima de cada model
 
@@ -34,12 +34,12 @@ model_modules = {
 }
 
 # path carpeta
-#DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
+DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
 #DATA_PATH = 'C:/Users/twitc/OneDrive/Desktop/Dataset/'
-DATA_PATH = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
+#DATA_PATH = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
 
 # Normalització del text
-def normalize_text(text):   #REVISAR FUNCIO
+def normalize_text(text):   
     """
     Funció per normalitzar el text: convertir a minúscules, eliminar mencions,
     URLs, caràcters especials i eliminar paraules d'aturada.

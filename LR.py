@@ -1,5 +1,7 @@
 #llista max iters esta be?
 #tindria sentit fer un heatmap dels parametrees ? de quins? o tots
+#cross validation
+
 
 ################################FER: ALTRE METRICA A EVALUAR IGUAL QUE AL KNN
 
@@ -118,7 +120,7 @@ def entrena_prediu_i_evaluaGridSearch(X_train, y_train, X_test, y_test):
         lr,                    # Model base
         parameters,            # Diccionari amb els paràmetres a provar
         n_jobs=-1,             # Número de processos paral·lels (ús màxim del sistema)
-        cv=5,                  # Validació creuada amb 5 particions
+        cv=5,                  # 5 folds, iteracio entrenament-validacio, mitjana metriques
         scoring='accuracy'     # Mètrica d'avaluació
     )
 

@@ -28,7 +28,7 @@ DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasetsMini_AC/'
 #DATA_PATH = 
 
 # Normalització del text
-def normalize_text(text):   #REVISAR FUNCIO
+def normalize_text(text):  
     """
     Funció per normalitzar el text: convertir a minúscules, eliminar mencions,
     URLs, caràcters especials i eliminar paraules d'aturada.
@@ -128,7 +128,17 @@ def convert_to_numeric_matrices(X_train, X_valid, X_test):
     X_valid_matrix = vectorizer.transform(X_valid['stemmatized_text'])
     X_test_matrix = vectorizer.transform(X_test['stemmatized_text'])
 
-    print('\nmatriu train vectoritzada (matriu esccasa: vector(paraula), pes):\n', X_train_matrix)
+    # Obtenir el vocabulari
+    feature_names = vectorizer.get_feature_names_out()
+
+    # Imprimir matriu en format (index, valor) i associar les paraules amb els seus índexs
+    print('\nMatriu train vectoritzada (index, valor) amb les paraules corresponents:')
+    for i, row in enumerate(X_train_matrix.toarray()):
+        words_with_values = [(feature_names[j], row[j]) for j in range(len(row)) if row[j] > 0]
+        print(f'Fila {i}: {words_with_values}')
+
+    print('\nmatriu train vect:')
+    print(X_train_matrix)
 
     return X_train_matrix, X_valid_matrix, X_test_matrix, vectorizer
 

@@ -36,7 +36,7 @@ SETMANA 2 (preguntes a respondre a partir de la seguent sessió):
 
     FALTA REALITZAR TESTS PER CONFIRMAR!!
 
-    Una alternativa que pensem que podria ser útil és l'ús de word embeddings. (?)
+    Una alternativa que pensem que podria ser útil és l'ús de word embeddings. De més a més(?)
 
     - quins son els millors parametres en cada model?
     LR: {'C': 1, 'max_iter': 500, 'penalty': 'l2', 'solver': 'liblinear'}. 
