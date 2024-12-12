@@ -1,6 +1,5 @@
 #llista max iters esta be?
 #tindria sentit fer un heatmap dels parametrees ? de quins? o tots
-#cross validation
 
 
 ################################FER rpecision - recall
