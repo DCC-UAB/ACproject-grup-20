@@ -54,4 +54,3 @@ SETMANA 2 (preguntes a respondre a partir de la seguent sessió):
     
     SETMANA 3:
     - quina informació ens aporta que l'accuracy i la precision siguin iguals, indiferentment del model?
-    - 

@@ -1,9 +1,8 @@
 #llista max iters esta be?
 #tindria sentit fer un heatmap dels parametrees ? de quins? o tots
-#cross validation
 
 
-################################FER: ALTRE METRICA A EVALUAR IGUAL QUE AL KNN
+################################FER rpecision - recall
 
 import numpy as np
 import os
@@ -334,4 +333,8 @@ temps entrenament 4144.591024875641
 '''
 Anàlisi de l'espai de cerca:
 Heatmap que mostri l'accuracy obtinguda en funció de dos hiperparàmetres (p. ex., penalty i solver).
+
+
+taula evaluar precision-recall
 '''
+

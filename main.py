@@ -1,11 +1,12 @@
 #podem treure directament els tres elements amb altre idioma???
 #accuracy/precision o quin metrica a assolir i a quan
-#stemming: no aporta info fent lemm(LR: acc 89,00 stemming, acc 88,98 sense stemming)
 #evaluacio respecte % en train fa falta??
+#mirar pq lemmatize no va be a mini
+
+#stemming / lemmatize
 #com implementar validation
 #word embedding (relacions semantiques(sig) i sintactiques)
-
-#Fer final: funcio que compari amb grafiques la forma mes optima de cada model
+#BOOSTRAP, BAGGING, BOOSTING, CROSS VALIDATION
 
 #NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
 import time
