@@ -54,8 +54,9 @@ def normalize_text(text):
     filtered_words = [word for word in words if word not in stop_words]
     return " ".join(filtered_words)
 
-# Inicialitzar el lematitzador
+# Inicialitzar el lematitzador i stemmatitzador
 lemmatizer = WordNetLemmatizer()
+stemmer = PorterStemmer()
 
 def lemmatize(text):
     """
@@ -64,6 +65,14 @@ def lemmatize(text):
     tokens = word_tokenize(text)
     lemmatized = [lemmatizer.lemmatize(word) for word in tokens]
     return " ".join(lemmatized)
+
+def stemmatize(text):
+    """
+    Funció per stemmatitzar.
+    """
+    tokens = word_tokenize(text)
+    stemmatized = [stemmer.stem(word) for word in tokens]
+    return " ".join(stemmatized)
 
 # Pipeline de preprocessament
 def preprocess_pipeline(data, column_name):
@@ -80,7 +89,7 @@ def load_and_preprocess_data(data_path):
     """
     # Carregar el dataset Train, Valid, Test
     X_train = pd.read_csv(f'{data_path}Train.csv')
-    X_valid = pd.read_csv(f'{data_path}Valid.csv')
+    X_valid = pd.read_csv(f'{data_path}ValidFAKE.csv')
     X_test = pd.read_csv(f'{data_path}Test.csv')
 
     # Preprocessament
@@ -88,9 +97,9 @@ def load_and_preprocess_data(data_path):
     X_valid = preprocess_pipeline(X_valid, 'text')
     X_test = preprocess_pipeline(X_test, 'text')
 
-    #X_train = X_train.head(2000)
-    #X_valid = X_valid.head(1000)
-    #X_test = X_test.head(1000)
+    X_train = X_train.head(2000)
+    X_valid = X_valid.head(2)
+    X_test = X_test.head(1000)
 
     y_train = X_train['label']
     y_valid = X_valid['label']

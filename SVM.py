@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score, accuracy
 
 # Directorio para guardar los gráficos
 EVALUATION_DIR = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
-os.makedirs(EVALUATION_DIR, exist_ok=True)
+
 
 def evaluar(y_true, y_pred, y_proba):
     """
