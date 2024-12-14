@@ -37,21 +37,23 @@ def evaluar(y_true, y_pred):
     plt.ylabel('Valors Reals')
     plt.show()
 
-def trobar_millor_n_neighbors(X_train, y_train, max_k):
+def trobar_millor_n_neighbors(X_train, y_train, max_k, start_k):
     """
-    Troba el millor valor de n_neighbors mitjançant validació creuada.
-    
+    Troba el millor valor de n_neighbors mitjançant validació creuada,
+    començant des del valor especificat per start_k.
+
     Paràmetres:
     - X_train: Matriu de característiques d'entrenament.
     - y_train: Etiquetes d'entrenament.
     - max_k: Nombre màxim de veïns a provar.
+    - start_k: Valor inicial de n_neighbors (per reprendre la cerca).
 
     Retorna:
     - millor_k: El valor òptim de n_neighbors.
     - scores: Accuracy per a cada valor de k.
     """
     scores = []
-    for k in range(1, max_k + 1):
+    for k in range(start_k, max_k + 1):
         model = KNeighborsClassifier(n_neighbors=k)
         # Validació creuada amb accuracy com a mètrica
         cv_scores = cross_val_score(model, X_train, y_train, cv=5, scoring='accuracy')
@@ -59,9 +61,10 @@ def trobar_millor_n_neighbors(X_train, y_train, max_k):
         print(f"k={k}: Accuracy mitjana={cv_scores.mean():.4f}")
     
     # Seleccionar el millor k
-    millor_k = np.argmax(scores) + 1
-    print(f"\nMillor k trobat: {millor_k} amb accuracy={scores[millor_k-1]:.4f}")
+    millor_k = np.argmax(scores) + start_k  # Ajusta l'índex amb start_k
+    print(f"\nMillor k trobat: {millor_k} amb accuracy={scores[millor_k - start_k]:.4f}")
     return millor_k, scores
+
 
 def mostrar_curves_roc_precisio_recall(y_true, y_prob): # Implementada al model de forma temporal per fer testing
     """
@@ -97,17 +100,23 @@ def mostrar_curves_roc_precisio_recall(y_true, y_prob): # Implementada al model 
     plt.tight_layout()
     plt.show()
 
-def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test): #max_k=200
+def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test, max_k=200, start_k=101):
     """
     Troba el millor valor de n_neighbors, entrena un model K-Nearest Neighbors,
     genera les prediccions i crida les funcions per avaluar i mostrar gràfiques.
+
+    Paràmetres:
+    - X_train, y_train: Dades d'entrenament.
+    - X_test, y_test: Dades de test.
+    - max_k: Valor màxim de n_neighbors.
+    - start_k: Valor inicial de n_neighbors (per reprendre la cerca).
     """
-    # # Trobar el millor valor de n_neighbors
-    # millor_k, _ = trobar_millor_n_neighbors(X_train, y_train, max_k)
-    # print(f"Entrenant amb el millor k={millor_k}...")
+    # Trobar el millor valor de n_neighbors
+    millor_k, _ = trobar_millor_n_neighbors(X_train, y_train, max_k, start_k=start_k)
+    print(f"Entrenant amb el millor k={millor_k}...")
 
     # Definir el model amb el millor k
-    model = KNeighborsClassifier(n_neighbors=200) #n_neighbors=millor_k
+    model = KNeighborsClassifier(n_neighbors=millor_k)
 
     # Entrenar el model
     model.fit(X_train, y_train)
@@ -129,6 +138,3 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test): #max_k=200
         mostrar_curves_roc_precisio_recall(y_test, y_prob)
 
     return predictions
-
-if __name__ == "__main__":
-    print("Aquest script està destinat a ser importat al main.")
