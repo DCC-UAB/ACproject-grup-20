@@ -54,3 +54,4 @@ SETMANA 2 (preguntes a respondre a partir de la seguent sessió):
     
     SETMANA 3:
     - quina informació ens aporta que l'accuracy i la precision siguin iguals, indiferentment del model?
+    - Al model KNN si la diferencia a l'accuracy entre un valor de k (com per exemple 120) i un valor bastant superior (com bé pot ser 200) és quasi bé indistingible quin valor prendrem? El que ens proporcioni millor accuracy o el valor més petit?
