@@ -25,7 +25,7 @@ import KNN
 import NB
 
 # Selecció model: KNN, LR, NB, RF, SVM
-MODEL_CHOICE = 'RF' 
+MODEL_CHOICE = 'NB' 
 model_modules = {
     "LR": LR,
     "SVM": SVM,
@@ -130,7 +130,6 @@ def main():
     
     #entrenar i predecir
     y_pred = getattr(model_module, "entrena_prediu_i_evalua")(X_train_matrix, y_train, X_test_matrix, y_test)
-    #y_pred = getattr(model_module, "entrena_prediu_i_evalua")(X_train_matrix, y_train, X_test_matrix, y_test,max_k=200)
     entrenaripredir_time = time.time()
     print('temps entrenament', entrenaripredir_time - processar_time)
 
