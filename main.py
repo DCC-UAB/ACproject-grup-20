@@ -2,6 +2,7 @@
 #FER: word embedding (relacions semantiques(sig) i sintactiques)
 #FER: BOOSTRAP, BAGGING, BOOSTING, CROSS VALIDATION
 #FER: EVALUACIO CADA MODEL TAL I COM SHA FET A CLASSE DIVENDRES
+#Fer: mirar grafiques kharrad
 
 #NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
 import time
