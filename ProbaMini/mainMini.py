@@ -1,4 +1,5 @@
-#podem treure directament els tres elements amb altre idioma???
+#pag lemmatize: https://stackoverflow.com/questions/32957895/wordnetlemmatizer-not-returning-the-right-lemma-unless-pos-is-explicit-python
+
 #NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
 
 import time
@@ -6,7 +7,8 @@ import re
 import pandas as pd
 import sys
 from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
+from nltk.corpus import stopwords, wordnet
+from nltk import pos_tag
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -42,11 +44,41 @@ def normalize_text(text):
     filtered_words = [word for word in words if word not in stop_words]
     return " ".join(filtered_words)
 
+# Funció per convertir etiquetes de POS al format de WordNet
+def get_wordnet_pos(treebank_tag):
+    """
+    Converteix etiquetes POS de Penn Treebank al format WordNet.
+    """
+    if treebank_tag.startswith('J'):
+        return wordnet.ADJ
+    elif treebank_tag.startswith('V'):
+        return wordnet.VERB
+    elif treebank_tag.startswith('N'):
+        return wordnet.NOUN
+    elif treebank_tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return wordnet.NOUN  
+
 # Inicialitzar el lematitzador i el stemmer
 lemmatizer = WordNetLemmatizer()
 stemmer = PorterStemmer()
 
-# Funció per aplicar només lematització
+# Funció per aplicar lematització amb POS
+def apply_lemmatizePOS(text):
+    """
+    Aplica lematització al text utilitzant POS tags per millorar la precisió.
+    """
+    tokens = word_tokenize(text)
+    pos_tags = pos_tag(tokens)  # Obtenim les etiquetes de tipus de paraula
+    lemmatized = [
+        lemmatizer.lemmatize(word, get_wordnet_pos(tag))
+        for word, tag in pos_tags
+    ]
+    return " ".join(lemmatized)
+
+
+# Funció per aplicar lematització
 def apply_lemmatize(text):
     """
     Funció per aplicar lematització al text.
@@ -54,6 +86,7 @@ def apply_lemmatize(text):
     tokens = word_tokenize(text)
     lemmatized = [lemmatizer.lemmatize(word) for word in tokens]
     return " ".join(lemmatized)
+
 
 # Funció per aplicar només stemming
 def apply_stem(text):

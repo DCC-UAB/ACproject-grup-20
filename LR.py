@@ -1,9 +1,6 @@
 #llista max iters esta be?
 #tindria sentit fer un heatmap dels parametrees ? de quins? o tots
 
-
-################################FER rpecision - recall
-
 import numpy as np
 import os
 import seaborn as sns
@@ -36,6 +33,8 @@ def evaluar(y_true, y_pred, y_proba):
     print(f"Recall: {recall:.4f}")
     print(f"F1 Score: {f1:.4f}")
 
+
+    #MATRIU CONFUSIO
     # Visualització de la matriu de confusió com a heatmap
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, 
@@ -44,12 +43,14 @@ def evaluar(y_true, y_pred, y_proba):
     plt.xlabel('Prediccions')
     plt.ylabel('Valors reals')
 
-    # Ruta completa a la carpeta d'evaluació
+    # guardar matriu confusio
     training_plot_path = os.path.join(EVALUATION_DIR, "matriu_confusio.png")
     plt.savefig(training_plot_path)
     print(f"Matriu de confusió guardada a {training_plot_path}")
     plt.close()
 
+
+    #ROC CURVE
     # Càlcul de la curva ROC
     fpr, tpr, _ = roc_curve(y_true, y_proba)
     auc_score = roc_auc_score(y_true, y_proba)
@@ -68,6 +69,27 @@ def evaluar(y_true, y_pred, y_proba):
     roc_plot_path = os.path.join(EVALUATION_DIR, "roc_curve.png")
     plt.savefig(roc_plot_path)
     print(f"ROC curve guardada a {roc_plot_path}")
+    plt.close()
+
+
+    #PRECISION - RECALL CURVE
+    # Càlcul de la Precision-Recall Curve
+    precision, recall, _ = precision_recall_curve(y_true, y_proba)
+    pr_auc_score = auc(recall, precision)
+    print(f"\nAUC de Precision-Recall: {pr_auc_score:.4f}")
+
+    # Visualització de la Precision-Recall Curve
+    plt.figure(figsize=(8, 6))
+    plt.plot(recall, precision, label=f'Precision-Recall Curve (AUC = {pr_auc_score:.2f})', color='green')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision-Recall Curve')
+    plt.legend(loc='lower left')
+
+    # Guardar la Precision-Recall curve
+    pr_plot_path = os.path.join(EVALUATION_DIR, "precision_recall_curve.png")
+    plt.savefig(pr_plot_path)
+    print(f"Precision-Recall curve guardada a {pr_plot_path}")
     plt.close()
 
 def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
@@ -91,11 +113,9 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
 
     return predictions
 
-
 ##############################################################################################
 #EVALUACIÓ PARÀMETRES
 ##############################################################################################
-
 
 #GRIDSEARCH
 def entrena_prediu_i_evaluaGridSearch(X_train, y_train, X_test, y_test):
@@ -290,6 +310,7 @@ def entrena_prediu_i_evaluaImpactC(X_train, y_train, X_test, y_test):
     plt.plot(C_values, precisions, marker='o', label='Precision', color='red')
     plt.plot(C_values, f1_scores, marker='o', label='F1 Score', color='green')
     plt.plot(C_values, recalls, marker='o', label='Recall', color='purple')
+    plt.xscale('log')
     plt.title('Impacte de C en Accuracy, Precision, F1 Score i Recall')
     plt.xlabel('Valor de C')
     plt.ylabel('Mètriques')
@@ -302,6 +323,7 @@ def entrena_prediu_i_evaluaImpactC(X_train, y_train, X_test, y_test):
     # Gràfica del temps d'entrenament en funció de C
     plt.figure(figsize=(10, 6))
     plt.plot(C_values, training_times, marker='o', color='orange')
+    plt.xscale('log')
     plt.title('Impacte de C en el temps d\'entrenament')
     plt.xlabel('Valor de C')
     plt.ylabel('Temps d\'entrenament (s)')
@@ -333,8 +355,5 @@ temps entrenament 4144.591024875641
 '''
 Anàlisi de l'espai de cerca:
 Heatmap que mostri l'accuracy obtinguda en funció de dos hiperparàmetres (p. ex., penalty i solver).
-
-
-taula evaluar precision-recall
 '''
 
