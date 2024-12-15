@@ -7,7 +7,7 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 import pandas as pd
 # Directorio para guardar visualizaciones
 EVALUATION_DIR = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
-os.makedirs(EVALUATION_DIR, exist_ok=True)
+#os.makedirs(EVALUATION_DIR, exist_ok=True)
 
 def evaluar(y_true, y_pred, y_proba):
     """

@@ -48,7 +48,7 @@ def evaluar(y_true, y_pred, y_proba):
     # guardar matriu confusio
     training_plot_path = os.path.join(EVALUATION_DIR, "matriu_confusio.png")
     plt.savefig(training_plot_path)
-    print(f"Matriu de confusió guardada a {training_plot_path}")
+    print("Matriu de confusió guardada")
     plt.close()
 
 
@@ -70,7 +70,7 @@ def evaluar(y_true, y_pred, y_proba):
     # Guardar la ROC curve
     roc_plot_path = os.path.join(EVALUATION_DIR, "roc_curve.png")
     plt.savefig(roc_plot_path)
-    print(f"ROC curve guardada a {roc_plot_path}")
+    print("ROC curve guardada a")
     plt.close()
 
 
@@ -91,7 +91,7 @@ def evaluar(y_true, y_pred, y_proba):
     # Guardar la Precision-Recall curve
     pr_plot_path = os.path.join(EVALUATION_DIR, "precision_recall_curve.png")
     plt.savefig(pr_plot_path)
-    print(f"Precision-Recall curve guardada a {pr_plot_path}")
+    print("Precision-Recall curve guardada")
     plt.close()
 
 def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
