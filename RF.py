@@ -3,10 +3,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, roc_auc_score
-from sklearn.model_selection import GridSearchCV
-
+from sklearn.model_selection import GridSearchCV, train_test_split
+import pandas as pd
 # Directorio para guardar visualizaciones
-EVALUATION_DIR =  "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
+EVALUATION_DIR = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
+os.makedirs(EVALUATION_DIR, exist_ok=True)
 
 def evaluar(y_true, y_pred, y_proba):
     """
@@ -57,56 +58,99 @@ def evaluar(y_true, y_pred, y_proba):
     print(f"Curva ROC guardada en {roc_path}")
     plt.close()
 
+
 def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
     """
-    Entrena un modelo Random Forest, genera las predicciones y llama a 'evaluar'.
+    Entrena un modelo Random Forest optimizado, genera las predicciones y llama a 'evaluar'.
     """
-    # Parámetros del modelo
-    n_estimators = 200
-    max_depth = 20
-    random_state = 42
+    modelo= RandomForestClassifier(max_depth=30, min_samples_leaf=2, min_samples_split=2, n_estimators=200)
 
-    print(f"Entrenando Random Forest con n_estimators={n_estimators} y max_depth={max_depth}")
-    model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=random_state)
-    model.fit(X_train, y_train)
+    modelo_entrenado =modelo.fit(X_train, y_train)
 
     # Predicciones y probabilidades
-    y_pred = model.predict(X_test)
-    y_proba = model.predict_proba(X_test)[:, 1]  # Probabilidades para la clase positiva
+    y_pred = modelo_entrenado.predict(X_test)
+    y_proba = modelo_entrenado.predict_proba(X_test)[:, 1]  # Probabilidades para la clase positiva
 
     # Evaluar resultados
     evaluar(y_test, y_pred, y_proba)
-    return y_pred
+    return y_pred    
 
-##Ahora lo que se hara es hacer una funcion donde se entrene con diferentes num de estimadores (pendiente x hacer)
 
-# # Definir el diccionario de parámetros
-# param_grid = {
-#     'n_estimators': [50, 100, 200],
-#     'max_depth': [10, 20, 30],
-#     'min_samples_split': [2, 5],
-#     'min_samples_leaf': [1, 2]
-# }
+###
+#Lo que se hizo aqui abajo es para encontrar los mejores parametros para este modelo donde demos encontrado lo siguiente:
+# Temps trigat a processar les dades : 118.41145944595337
+# model utilitzat: RF
+# Iniciando Grid Search...
+# Fitting 5 folds for each of 36 candidates, totalling 180 fits
 
-# # Crear el modelo
-# model = RandomForestClassifier(random_state=42)
+# Mejores parámetros encontrados:
+# {'max_depth': 30, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 200}
 
-# # Configurar GridSearchCV
-# grid_search = GridSearchCV(estimator=model, param_grid=param_grid, 
-#                            scoring='accuracy', cv=5, verbose=2, n_jobs=-1)
+# Mejor precisión obtenida:
+# 0.8437
 
-# # Entrenar GridSearchCV
-# print("Iniciando Grid Search...")
-# grid_search.fit(x_train, y_train)
+# Matriz de Confusión:
+# [[2039  456]
+#  [ 320 2185]]
 
-# # Obtener los mejores parámetros y resultados
-# print("\nMejores parámetros encontrados:")
-# print(grid_search.best_params_)
+# Accuracy: 0.8448
+# Precision: 0.8458
+# Recall: 0.8448
+# F1 Score: 0.8447
+# Matriz de confusión guardada en C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/matriz_confusion.png
 
-# print("\nMejor precisión obtenida:")
-# print(f"{grid_search.best_score_:.4f}")
+# AUC (Area Under the Curve): 0.9230
+# Curva ROC guardada en C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/roc_curve.png
+# temps entrenament 961.2376260757446
 
-# # Evaluar en el conjunto de prueba
-# y_pred = grid_search.best_estimator_.predict(X_test)
-# print("\nReporte de clasificación en el conjunto de prueba:")
-# print(classification_report(y_test, y_pred))
+
+
+
+#FUNCION PARA ENCONTRAR MEJORES PARAM
+# def buscar_mejores_parametros_rf(X_train, y_train):
+#     """
+#     Busca los mejores parámetros para Random Forest utilizando GridSearchCV.
+#     """
+#     # Definir el diccionario de parámetros
+#     param_grid = {
+#         'n_estimators': [50, 100, 200],  # Número de árboles
+#         'max_depth': [10, 20, 30],  # Profundidad máxima del árbol
+#         'min_samples_split': [2, 5],  # Número mínimo de muestras para dividir un nodo
+#         'min_samples_leaf': [1, 2]  # Número mínimo de muestras en una hoja
+#     }
+
+#     # Crear el modelo base
+#     model = RandomForestClassifier(random_state=42)
+
+#     # Configurar GridSearchCV
+#     grid_search = GridSearchCV(estimator=model, param_grid=param_grid, 
+#                                scoring='accuracy', cv=5, verbose=1, n_jobs=-1)
+
+#     # Entrenar el modelo
+#     print("Iniciando Grid Search...")
+#     grid_search.fit(X_train, y_train)
+
+#     # Mostrar los mejores parámetros
+#     print("\nMejores parámetros encontrados:")
+#     print(grid_search.best_params_)
+
+#     print("\nMejor precisión obtenida:")
+#     print(f"{grid_search.best_score_:.4f}")
+
+#     return grid_search.best_estimator_
+
+# def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
+#     """
+#     Entrena un modelo Random Forest optimizado, genera las predicciones y llama a 'evaluar'.
+#     """
+#     # Buscar los mejores parámetros y entrenar el modelo
+#     mejor_modelo = buscar_mejores_parametros_rf(X_train, y_train)
+
+#     # Predicciones y probabilidades
+#     y_pred = mejor_modelo.predict(X_test)
+#     y_proba = mejor_modelo.predict_proba(X_test)[:, 1]  # Probabilidades para la clase positiva
+
+#     # Evaluar resultados
+#     evaluar(y_test, y_pred, y_proba)
+#     return y_pred
+
