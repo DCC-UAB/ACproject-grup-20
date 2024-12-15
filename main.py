@@ -203,9 +203,11 @@ def main():
     y_pred = getattr(model_module, "comparar_accuracy_per_percentatge")(X_train_matrix, y_train, X_test_matrix, y_test)
     entrenaripredir_time = time.time()
     print('Temps entrenament:', entrenaripredir_time - processar_time)
+    
+    if MODEL_CHOICE == "RF":
+        print("N_estimator_grafic")
 
-    print("N_estimator_grafic")
-    RF.graficar_precision_n_estimators(X_train_matrix, y_train, X_test_matrix, y_test)
+        RF.graficar_precision_n_estimators(X_train_matrix, y_train, X_test_matrix, y_test)
 
 
 if __name__ == "__main__":
