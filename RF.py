@@ -76,6 +76,110 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
     return y_pred    
 
 
+def graficar_precision_n_estimators(X_train, y_train, X_test, y_test):
+    """
+    Genera una gráfica de precisión para diferentes valores de n_estimators.
+    """
+    n_estimators_values = [100, 200, 300, 400, 500, 600]
+    precisiones = []
+
+    # Entrenar y calcular precisión para cada valor de n_estimators
+    for n in n_estimators_values:
+        modelo = RandomForestClassifier(n_estimators=n, max_depth=30, min_samples_leaf=2, min_samples_split=2, random_state=42)
+        modelo.fit(X_train, y_train)
+        y_pred = modelo.predict(X_test)
+        precision = accuracy_score(y_test, y_pred)
+        precisiones.append(precision)
+        print(f"n_estimators={n} | Precision: {precision:.4f}")
+
+    # Generar la gráfica
+    plt.figure(figsize=(10, 6))
+    plt.plot(n_estimators_values, precisiones, marker='o', linestyle='-', color='b')
+    plt.title('Precisión del modelo Random Forest vs n_estimators')
+    plt.xlabel('Número de árboles (n_estimators)')
+    plt.ylabel('Precisión')
+    plt.grid(True)
+    plt.savefig(os.path.join(EVALUATION_DIR, "precision_n_estimators.png"))
+    print("Gráfica de precisión guardada en 'precision_n_estimators.png'")
+    plt.show()
+
+def comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test):
+    """
+    Compara l'accuracy del model RF per diferents percentatges de les dades d'entrenament,
+    tant pel conjunt d'entrenament com pel conjunt de test.
+    Es seleccionen aleatòriament percentatges del 5%, 10%, 30%, 50%, 70%, 90%, 100% de les dades d'entrenament.
+    """
+    percentatges = [5, 10, 30, 50, 70, 90, 100]
+    
+    # Llistes per guardar els resultats de l'accuracy
+    train_accuracies = []
+    test_accuracies = []
+
+    # Iterar sobre cada percentatge
+    for percentatge in percentatges:
+        # Calcular el percentatge de mostres
+        train_size = percentatge / 100.0  # Convertir el percentatge a una fracció
+
+        # Evitar que train_size sigui 1.0, ja que això vol dir que agafem tot el conjunt d'entrenament
+        if train_size == 1.0:
+            X_train_sub, y_train_sub = X_train, y_train
+        else:
+            # Seleccionar aleatòriament una part del conjunt d'entrenament
+            X_train_sub, _, y_train_sub, _ = train_test_split(X_train, y_train, train_size=train_size, random_state=42)
+
+        # Definir el RF
+        model = RandomForestClassifier()
+        
+        # Entrenar el model amb el subset seleccionat
+        model.fit(X_train_sub, y_train_sub)
+
+        # Fer les prediccions pel conjunt d'entrenament
+        y_train_pred = model.predict(X_train_sub)
+        # Fer les prediccions pel conjunt de test
+        y_test_pred = model.predict(X_test)
+
+        # Calcular l'accuracy pel conjunt d'entrenament
+        train_accuracy = accuracy_score(y_train_sub, y_train_pred)
+        # Calcular l'accuracy pel conjunt de test
+        test_accuracy = accuracy_score(y_test, y_test_pred)
+        
+        # Afegir els resultats a les llistes
+        train_accuracies.append(train_accuracy)
+        test_accuracies.append(test_accuracy)
+
+    # Crear un DataFrame amb els resultats
+    results_df = pd.DataFrame({
+        'Percentatge': percentatges,
+        'Train Accuracy': train_accuracies,
+        'Test Accuracy': test_accuracies
+    })
+
+    # Mostrar els resultats
+    print("\nResultats d'accuracy per diferents percentatges de dades d'entrenament:")
+    print(results_df)
+
+    # Generar gràfiques de comparació
+    plt.figure(figsize=(10, 6))
+    
+    # Crear gràfic per a l'accuracy del conjunt d'entrenament i test
+    plt.plot(percentatges, train_accuracies, marker='o', linestyle='-', label='Train Accuracy')
+    plt.plot(percentatges, test_accuracies, marker='o', linestyle='-', label='Test Accuracy')
+    
+    # Afegir títol i etiquetes
+    plt.title('Comparació de l\'Accuracy per percentatges de dades d\'entrenament')
+    plt.xlabel('Percentatge del conjunt d\'entrenament')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.grid(True)
+
+    # Modificar les etiquetes de l'eix X per mostrar percentatges
+    plt.xticks(percentatges, [f'{x}%' for x in percentatges])
+
+    # Guardar el gràfic a la carpeta d'evaluació
+    plt.tight_layout()
+    plt.savefig(f"{EVALUATION_DIR}/comparacio_accuracy_percentatge.png")
+    plt.close()
+        
 ###
 #Lo que se hizo aqui abajo es para encontrar los mejores parametros para este modelo donde demos encontrado lo siguiente:
 # Temps trigat a processar les dades : 118.41145944595337
