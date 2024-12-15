@@ -2,7 +2,6 @@
 #FER: word embedding (relacions semantiques(sig) i sintactiques)
 #FER: BOOSTRAP, BAGGING, BOOSTING, CROSS VALIDATION
 #FER: EVALUACIO CADA MODEL TAL I COM SHA FET A CLASSE DIVENDRES
-#Fer: mirar grafiques kharrad
 
 #NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
 import time
@@ -24,7 +23,7 @@ import KNN
 import NB
 
 # Selecció model: KNN, LR, NB, RF, SVM
-MODEL_CHOICE = 'LR' 
+MODEL_CHOICE = 'RF' 
 model_modules = {
     "LR": LR,
     "SVM": SVM,
@@ -34,9 +33,9 @@ model_modules = {
 }
 
 # path carpeta
-DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
+#DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
 #DATA_PATH = 'C:/Users/twitc/OneDrive/Desktop/Dataset/'
-#DATA_PATH = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
+DATA_PATH = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
 
 # Normalització del text
 def normalize_text(text):   
@@ -119,7 +118,7 @@ def load_and_preprocess_data(data_path):
     """
     # Carregar el dataset Train, Valid, Test
     X_train = pd.read_csv(f'{data_path}Train.csv')
-    X_valid = pd.read_csv(f'{data_path}ValidFAKE.csv')
+    X_valid = pd.read_csv(f'{data_path}Valid.csv')
     X_test = pd.read_csv(f'{data_path}Test.csv')
 
     #X_train = X_train.head(2000)
@@ -204,6 +203,10 @@ def main():
     y_pred = getattr(model_module, "comparar_accuracy_per_percentatge")(X_train_matrix, y_train, X_test_matrix, y_test)
     entrenaripredir_time = time.time()
     print('Temps entrenament:', entrenaripredir_time - processar_time)
+
+    print("N_estimator_grafic")
+    RF.graficar_precision_n_estimators(X_train_matrix, y_train, X_test_matrix, y_test)
+
 
 if __name__ == "__main__":
     main()
