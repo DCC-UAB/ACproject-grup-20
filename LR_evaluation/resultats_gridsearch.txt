@@ -1,4 +1,4 @@
-Accuracy sobre el conjunt de test: 0.8460
-Accuracy sobre el conjunt d'entrenament: 0.9990
-Millor accuracy en validació creuada: 0.8375
-Millors hiperparàmetres trobats: {'C': 10, 'max_iter': 500, 'penalty': 'l2', 'solver': 'saga'}
+Accuracy sobre el conjunt de test: 0.8896
+Accuracy sobre el conjunt d'entrenament: 0.9100
+Millor accuracy en validacio creuada: 0.8858
+Millors hiperparametres trobats: {'C': 1, 'max_iter': 500, 'penalty': 'l2', 'solver': 'saga'}

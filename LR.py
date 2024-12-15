@@ -5,9 +5,11 @@ import numpy as np
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, roc_auc_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, roc_auc_score, precision_recall_curve, auc
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split
+import pandas as pd
 import time
 
 EVALUATION_DIR = "C:/Users/marti/OneDrive/Escriptori/ProjecteAC/ACproject-grup-20/LR_evaluation"
@@ -112,6 +114,89 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
     evaluar(y_test, predictions, probabilities)
 
     return predictions
+
+
+##############################################################################################
+#EVALUACIÓ TRAIN
+##############################################################################################
+
+def comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test):
+    """
+    Compara l'accuracy del model Logistic Regression per diferents percentatges de les dades d'entrenament,
+    tant pel conjunt d'entrenament com pel conjunt de test.
+    Es seleccionen aleatòriament percentatges del 5%, 10%, 30%, 50%, 70%, 90%, 100% de les dades d'entrenament.
+    """
+    percentatges = [5, 10, 30, 50, 70, 90, 100]
+    
+    # Llistes per guardar els resultats de l'accuracy
+    train_accuracies = []
+    test_accuracies = []
+
+    # Iterar sobre cada percentatge
+    for percentatge in percentatges:
+        # Calcular el percentatge de mostres
+        train_size = percentatge / 100.0  # Convertir el percentatge a una fracció
+
+        # Evitar que train_size sigui 1.0, ja que això vol dir que agafem tot el conjunt d'entrenament
+        if train_size == 1.0:
+            X_train_sub, y_train_sub = X_train, y_train
+        else:
+            # Seleccionar aleatòriament una part del conjunt d'entrenament
+            X_train_sub, _, y_train_sub, _ = train_test_split(X_train, y_train, train_size=train_size, random_state=42)
+
+        # Definir el model Logistic Regression
+        model = LogisticRegression(C=1, max_iter=500, penalty='l2', solver='saga', random_state=42)
+        
+        # Entrenar el model amb el subset seleccionat
+        model.fit(X_train_sub, y_train_sub)
+
+        # Fer les prediccions pel conjunt d'entrenament
+        y_train_pred = model.predict(X_train_sub)
+        # Fer les prediccions pel conjunt de test
+        y_test_pred = model.predict(X_test)
+
+        # Calcular l'accuracy pel conjunt d'entrenament
+        train_accuracy = accuracy_score(y_train_sub, y_train_pred)
+        # Calcular l'accuracy pel conjunt de test
+        test_accuracy = accuracy_score(y_test, y_test_pred)
+        
+        # Afegir els resultats a les llistes
+        train_accuracies.append(train_accuracy)
+        test_accuracies.append(test_accuracy)
+
+    # Crear un DataFrame amb els resultats
+    results_df = pd.DataFrame({
+        'Percentatge': percentatges,
+        'Train Accuracy': train_accuracies,
+        'Test Accuracy': test_accuracies
+    })
+
+    # Mostrar els resultats
+    print("\nResultats d'accuracy per diferents percentatges de dades d'entrenament:")
+    print(results_df)
+
+    # Generar gràfiques de comparació
+    plt.figure(figsize=(10, 6))
+    
+    # Crear gràfic per a l'accuracy del conjunt d'entrenament i test
+    plt.plot(percentatges, train_accuracies, marker='o', linestyle='-', label='Train Accuracy')
+    plt.plot(percentatges, test_accuracies, marker='o', linestyle='-', label='Test Accuracy')
+    
+    # Afegir títol i etiquetes
+    plt.title('Comparació de l\'Accuracy per percentatges de dades d\'entrenament')
+    plt.xlabel('Percentatge del conjunt d\'entrenament')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.grid(True)
+
+    # Modificar les etiquetes de l'eix X per mostrar percentatges
+    plt.xticks(percentatges, [f'{x}%' for x in percentatges])
+
+    # Guardar el gràfic a la carpeta d'evaluació
+    plt.tight_layout()
+    plt.savefig(f"{EVALUATION_DIR}/comparacio_accuracy_percentatge_logistic_regression.png")
+    plt.close()
+
 
 ##############################################################################################
 #EVALUACIÓ PARÀMETRES
@@ -255,7 +340,7 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
         plt.title(f'Matriu de Confusió per max_iter={max_iter_values[i]}')
 
     # Desar la imatge amb les matrius de confusió
-    confusion_matrix_plot_path = os.path.join(EVALUATION_DIR, "matrius_de_confusio.png")
+    confusion_matrix_plot_path = os.path.join(EVALUATION_DIR, "MAX_ITER_matrius_de_confusio.png")
     plt.tight_layout()
     plt.savefig(confusion_matrix_plot_path)
     plt.close()
@@ -348,12 +433,5 @@ dict_keys(['scoring', 'estimator', 'n_jobs', 'refit', 'cv', 'verbose', 'pre_disp
     'best_score_', 'best_params_', 'best_estimator_', 'refit_time_', 'scorer_', 
     'cv_results_', 'n_splits_'])       
 temps entrenament 4144.591024875641
-'''
-
-
-#a fer:
-'''
-Anàlisi de l'espai de cerca:
-Heatmap que mostri l'accuracy obtinguda en funció de dos hiperparàmetres (p. ex., penalty i solver).
 '''
 

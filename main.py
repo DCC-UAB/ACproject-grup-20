@@ -1,6 +1,7 @@
-#FER: AVALUACIO RESPECTE %
+#FER: AVALUACIO RESPECTE % train acabar de mirar si te sentit o no el test allà
 #FER: word embedding (relacions semantiques(sig) i sintactiques)
 #FER: BOOSTRAP, BAGGING, BOOSTING, CROSS VALIDATION
+#FER: EVALUACIO CADA MODEL TAL I COM SHA FET A CLASSE DIVENDRES
 
 #NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
 import time
@@ -111,7 +112,7 @@ def preprocess_pipeline(data, column_name):
     return data
 
 #carregar i preprocessar dades
-def load_and_preprocess_data1r(data_path):
+def load_and_preprocess_data(data_path):
     """
     Càrrega i preprocessament de les dades.
     """
@@ -148,68 +149,6 @@ def load_data(filename):
     with open(filename, 'rb') as f:
         return pickle.load(f)
 
-def load_and_preprocess_data(data_path, use_pickle=True):
-    """
-    Càrrega i preprocessament de les dades. Si hi ha fitxers pickle guardats,
-    els carregarà per evitar repetir el procés.
-    """
-    # Comprovem si tenim fitxers pickle
-    if use_pickle and os.path.exists('X_train_matrix.pkl') and os.path.exists('X_valid_matrix.pkl') and os.path.exists('X_test_matrix.pkl'):
-        print("Carregant dades processades des de pickle...")
-        X_train_matrix = load_data('X_train_matrix.pkl')
-        X_valid_matrix = load_data('X_valid_matrix.pkl')
-        X_test_matrix = load_data('X_test_matrix.pkl')
-        vectorizer = load_data('vectorizer.pkl')
-
-        # Carregar també les etiquetes
-        X_train = load_data('X_train.pkl')
-        X_valid = load_data('X_valid.pkl')
-        X_test = load_data('X_test.pkl')
-        y_train = load_data('y_train.pkl')
-        y_valid = load_data('y_valid.pkl')
-        y_test = load_data('y_test.pkl')
-        
-    else:
-        # Carregar i preprocessar les dades
-        X_train = pd.read_csv(f'{data_path}Train.csv')
-        X_valid = pd.read_csv(f'{data_path}ValidFAKE.csv')
-        X_test = pd.read_csv(f'{data_path}Test.csv')
-
-        # Preprocessament
-        X_train = preprocess_pipeline(X_train, 'text')
-        X_valid = preprocess_pipeline(X_valid, 'text')
-        X_test = preprocess_pipeline(X_test, 'text')
-
-        y_train = X_train['label']
-        y_valid = X_valid['label']
-        y_test = X_test['label']
-
-        X_train = X_train[['processed_text']]
-        X_valid = X_valid[['processed_text']]
-        X_test = X_test[['processed_text']]
-
-        # Convertir a matrius numèriques
-        vectorizer = TfidfVectorizer(max_features=5000)
-        X_train_matrix = vectorizer.fit_transform(X_train['processed_text'])
-        X_valid_matrix = vectorizer.transform(X_valid['processed_text'])
-        X_test_matrix = vectorizer.transform(X_test['processed_text'])
-
-        # Guardar dades per a futures execucions
-        save_data(X_train_matrix, 'X_train_matrix.pkl')
-        save_data(X_valid_matrix, 'X_valid_matrix.pkl')
-        save_data(X_test_matrix, 'X_test_matrix.pkl')
-        save_data(vectorizer, 'vectorizer.pkl')
-
-        # Guardar també les dades de text i etiquetes
-        save_data(X_train, 'X_train.pkl')
-        save_data(X_valid, 'X_valid.pkl')
-        save_data(X_test, 'X_test.pkl')
-        save_data(y_train, 'y_train.pkl')
-        save_data(y_valid, 'y_valid.pkl')
-        save_data(y_test, 'y_test.pkl')
-
-    return X_train, y_train, X_valid, y_valid, X_test, y_test, X_train_matrix, X_valid_matrix, X_test_matrix, vectorizer
-
 def convert_to_numeric_matrices(X_train, X_valid, X_test):
     """
     Converteix els textos preprocessats en matrius numèriques utilitzant TF-IDF.
@@ -222,24 +161,48 @@ def convert_to_numeric_matrices(X_train, X_valid, X_test):
 
 def main():
     start_time = time.time()
-    # Carregar i processar les dades
-    X_train, y_train, X_valid, y_valid, X_test, y_test = load_and_preprocess_data(DATA_PATH)
-    processar_time = time.time()
-    print('Temps trigat a processar les dades :', processar_time - start_time)
 
-    # Convertir a matrius numèriques
-    X_train_matrix, X_valid_matrix, X_test_matrix, vectorizer = convert_to_numeric_matrices(X_train, X_valid, X_test)
+    # Comprovar si els fitxers pickle de les matrius TF-IDF i les etiquetes ja existeixen
+    if os.path.exists('X_train_matrix.pkl') and os.path.exists('X_valid_matrix.pkl') and os.path.exists('X_test_matrix.pkl') and \
+       os.path.exists('y_train.pkl') and os.path.exists('y_valid.pkl') and os.path.exists('y_test.pkl'):
+        print("Carregant les matrius TF-IDF i etiquetes des de pickle...")
+        # Carregar les matrius TF-IDF i les etiquetes des de pickle
+        X_train_matrix = load_data('X_train_matrix.pkl')
+        X_valid_matrix = load_data('X_valid_matrix.pkl')
+        X_test_matrix = load_data('X_test_matrix.pkl')
+        y_train = load_data('y_train.pkl')
+        y_valid = load_data('y_valid.pkl')
+        y_test = load_data('y_test.pkl')
+    else:
+        # Carregar i processar les dades
+        X_train, y_train, X_valid, y_valid, X_test, y_test = load_and_preprocess_data(DATA_PATH)
+
+        # Convertir a matrius numèriques
+        X_train_matrix, X_valid_matrix, X_test_matrix, _ = convert_to_numeric_matrices(X_train, X_valid, X_test)
+
+        # Guardar les matrius TF-IDF i les etiquetes
+        save_data(X_train_matrix, 'X_train_matrix.pkl')
+        save_data(X_valid_matrix, 'X_valid_matrix.pkl')
+        save_data(X_test_matrix, 'X_test_matrix.pkl')
+        save_data(y_train, 'y_train.pkl')
+        save_data(y_valid, 'y_valid.pkl')
+        save_data(y_test, 'y_test.pkl')
+
+        print('Matrius TF-IDF i etiquetes guardades amb èxit.')
+
+    processar_time = time.time()
+    print('Temps trigat a processar les dades:', processar_time - start_time)
     
-    #obtenir model
+    # Obtenir el model
     if MODEL_CHOICE not in model_modules:
         raise ValueError(f"Model no reconegut: {MODEL_CHOICE}")
     model_module = model_modules[MODEL_CHOICE]
-    print('model utilitzat:', MODEL_CHOICE)
+    print('Model utilitzat:', MODEL_CHOICE)
     
-    #entrenar i predecir
-    y_pred = getattr(model_module, "entrena_prediu_i_evaluaImpactC")(X_train_matrix, y_train, X_test_matrix, y_test)
+    # Entrenar i predir
+    y_pred = getattr(model_module, "comparar_accuracy_per_percentatge")(X_train_matrix, y_train, X_test_matrix, y_test)
     entrenaripredir_time = time.time()
-    print('temps entrenament', entrenaripredir_time - processar_time)
+    print('Temps entrenament:', entrenaripredir_time - processar_time)
 
 if __name__ == "__main__":
     main()
