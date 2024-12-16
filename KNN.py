@@ -1,9 +1,11 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc, precision_recall_curve
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score,train_test_split
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+EVALUATION_DIR = "C:/Users/twitc/ACproject-grup-20/KNN_evaluation"
 
 # Acabar de revisar implementació cross validation, revisar grafiques
 # Trobar millor k (neighbors) per executar i analitzar grafiques --> XValidation
@@ -100,23 +102,99 @@ def mostrar_curves_roc_precisio_recall(y_true, y_prob): # Implementada al model 
     plt.tight_layout()
     plt.show()
 
-def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test, max_k=200, start_k=101):
+def comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test, millor_k):
     """
-    Troba el millor valor de n_neighbors, entrena un model K-Nearest Neighbors,
-    genera les prediccions i crida les funcions per avaluar i mostrar gràfiques.
+    Compara l'accuracy del model KNN per diferents percentatges de les dades d'entrenament,
+    tant pel conjunt d'entrenament com pel conjunt de test.
+    Es seleccionen aleatòriament percentatges del 5%, 10%, 30%, 50%, 70%, 90%, 100% de les dades d'entrenament.
+    """
+    percentatges = [5, 10, 30, 50, 70, 90, 100]
+    
+    # Llistes per guardar els resultats de l'accuracy
+    train_accuracies = []
+    test_accuracies = []
 
-    Paràmetres:
-    - X_train, y_train: Dades d'entrenament.
-    - X_test, y_test: Dades de test.
-    - max_k: Valor màxim de n_neighbors.
-    - start_k: Valor inicial de n_neighbors (per reprendre la cerca).
+    # Iterar sobre cada percentatge
+    for percentatge in percentatges:
+        # Calcular el percentatge de mostres
+        train_size = percentatge / 100.0  # Convertir el percentatge a una fracció
+
+        # Evitar que train_size sigui 1.0, ja que això vol dir que agafem tot el conjunt d'entrenament
+        if train_size == 1.0:
+            X_train_sub, y_train_sub = X_train, y_train
+        else:
+            # Seleccionar aleatòriament una part del conjunt d'entrenament
+            X_train_sub, _, y_train_sub, _ = train_test_split(X_train, y_train, train_size=train_size, random_state=42)
+
+        # Definir el model KNN amb el millor valor de k trobat
+        model = KNeighborsClassifier(n_neighbors=millor_k)
+        
+        # Entrenar el model amb el subset seleccionat
+        model.fit(X_train_sub, y_train_sub)
+
+        # Fer les prediccions pel conjunt d'entrenament
+        y_train_pred = model.predict(X_train_sub)
+        # Fer les prediccions pel conjunt de test
+        y_test_pred = model.predict(X_test)
+
+        # Calcular l'accuracy pel conjunt d'entrenament
+        train_accuracy = accuracy_score(y_train_sub, y_train_pred)
+        # Calcular l'accuracy pel conjunt de test
+        test_accuracy = accuracy_score(y_test, y_test_pred)
+        
+        # Afegir els resultats a les llistes
+        train_accuracies.append(train_accuracy)
+        test_accuracies.append(test_accuracy)
+
+    # Crear un DataFrame amb els resultats
+    results_df = pd.DataFrame({
+        'Percentatge': percentatges,
+        'Train Accuracy': train_accuracies,
+        'Test Accuracy': test_accuracies
+    })
+
+    # Mostrar els resultats
+    print("\nResultats d'accuracy per diferents percentatges de dades d'entrenament:")
+    print(results_df)
+
+    # Generar gràfiques de comparació
+    plt.figure(figsize=(10, 6))
+    
+    # Crear gràfic per a l'accuracy del conjunt d'entrenament i test
+    plt.plot(percentatges, train_accuracies, marker='o', linestyle='-', label='Train Accuracy')
+    plt.plot(percentatges, test_accuracies, marker='o', linestyle='-', label='Test Accuracy')
+    
+    # Afegir títol i etiquetes
+    plt.title('Comparació de l\'Accuracy per percentatges de dades d\'entrenament (KNN)')
+    plt.xlabel('Percentatge del conjunt d\'entrenament')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.grid(True)
+
+    # Modificar les etiquetes de l'eix X per mostrar percentatges
+    plt.xticks(percentatges, [f'{x}%' for x in percentatges])
+
+    # Guardar el gràfic a la carpeta d'evaluació
+    plt.tight_layout()
+    plt.savefig(f"{EVALUATION_DIR}/comparacio_accuracy_percentatge_KNN.png")
+    plt.close()
+
+def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test): #, max_k=200, start_k=1
     """
-    # Trobar el millor valor de n_neighbors
-    millor_k, _ = trobar_millor_n_neighbors(X_train, y_train, max_k, start_k=start_k)
-    print(f"Entrenant amb el millor k={millor_k}...")
+    Entrena un model KNN i crida 'comparar_accuracy_per_percentatge' després d'entrenar.
+    """
+    # # Trobar el millor valor de n_neighbors
+    # millor_k, _ = trobar_millor_n_neighbors(X_train, y_train, max_k, start_k=start_k)
+    # print(f"Entrenant amb el millor k={millor_k}...") # millor_k=195
+
+    # Assegurar que els arrays són editables
+    X_train = np.array(X_train.todense()) if hasattr(X_train, "todense") else np.array(X_train)
+    y_train = np.array(y_train)
+    X_test = np.array(X_test.todense()) if hasattr(X_test, "todense") else np.array(X_test)
+    y_test = np.array(y_test)
 
     # Definir el model amb el millor k
-    model = KNeighborsClassifier(n_neighbors=millor_k)
+    model = KNeighborsClassifier(n_neighbors=195)
 
     # Entrenar el model
     model.fit(X_train, y_train)
@@ -136,5 +214,8 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test, max_k=200, start_k
     # Mostrar corbes ROC i de precisió-recall
     if hasattr(model, "predict_proba"):
         mostrar_curves_roc_precisio_recall(y_test, y_prob)
+
+    # Cridar la comparació d'accuracy per percentatges
+    comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test, 195)
 
     return predictions
