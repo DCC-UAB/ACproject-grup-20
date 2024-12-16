@@ -221,7 +221,7 @@ def entrena_prediu_i_evaluaAlpha(X_train, y_train, X_test, y_test):
     plt.close()
 
 
-#MULTINOMIAL AMB ALTRES
+#mulitnomial amb altres
 def entrena_prediu_i_evaluaDiferentsNB(X_train, y_train, X_test, y_test):
     """
     Entrena 4 models Naive Bayes (MultinomialNB, BernoulliNB, GaussianNB, CategoricalNB),

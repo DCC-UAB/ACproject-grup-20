@@ -199,7 +199,7 @@ def comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test):
 #EVALUACIÓ PARÀMETRES
 ##############################################################################################
 
-#GRIDSEARCH
+#gridsearch
 def entrena_prediu_i_evaluaGridSearch(X_train, y_train, X_test, y_test):
     """
     Entrena un model de regressió logística amb GridSearchCV per buscar els millors hiperparàmetres,
@@ -256,7 +256,7 @@ def entrena_prediu_i_evaluaGridSearch(X_train, y_train, X_test, y_test):
 
     return clf_
 
-#MAX_ITER
+#max iter
 def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test): 
     """
     Entrena el model de regressió logística amb diferents valors de max_iter
@@ -353,7 +353,7 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
 
     print(f"Gràfiques desades")
 
-#C
+#c
 def entrena_prediu_i_evaluaImpactC(X_train, y_train, X_test, y_test):
     """
     Entrena un model de regressió logística amb diferents valors de C, 
