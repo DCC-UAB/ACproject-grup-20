@@ -171,6 +171,56 @@ def comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test):
 #EVALUACIÓ PARÀMETRES
 ##############################################################################################
 
+#valor de aplha
+def entrena_prediu_i_evaluaAlpha(X_train, y_train, X_test, y_test):
+    """
+    Compara l'accuracy del model Naive Bayes (MultinomialNB) per diferents valors de 'alpha'.
+    Es genera una gràfica que mostra com l'accuracy canvia amb 'alpha' i es guarda al directori establert.
+    """
+    # Llista predeterminada de valors per alpha
+    alphas = [0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 50.0, 100.0]
+
+    # Llistes per guardar els resultats
+    accuracies = []
+
+    # Iterar sobre cada valor de alpha
+    for alpha in alphas:
+        # Crear el model amb el valor actual de alpha
+        model = MultinomialNB(alpha=alpha)
+
+        # Entrenar el model
+        model.fit(X_train, y_train)
+
+        # Fer les prediccions pel conjunt de test
+        y_pred = model.predict(X_test)
+
+        # Calcular l'accuracy pel conjunt de test
+        accuracy = accuracy_score(y_test, y_pred)
+
+        # Afegir el resultat a la llista
+        accuracies.append(accuracy)
+
+    # Crear la gràfica
+    plt.figure(figsize=(10, 6))
+    plt.plot(alphas, accuracies, marker='o', linestyle='-', color='b')
+    
+    # Afegir títol i etiquetes
+    plt.title('Com afecta el valor d\'alpha a l\'Accuracy de MultinomialNB')
+    plt.xlabel('Valor d\'alpha')
+    plt.ylabel('Accuracy')
+    plt.xscale('log')  # Escala logarítmica per a alpha
+    plt.grid(True)
+
+    # Imprimir cada valor d'alpha a la gràfica
+    for i, alpha in enumerate(alphas):
+        plt.text(alphas[i], accuracies[i], f'{alpha}', ha='center', va='bottom', fontsize=10, color='black')
+
+    # Guardar la gràfica a la carpeta d'evaluació
+    plt.tight_layout()
+    plt.savefig(f"{EVALUATION_DIR}/alpha_vs_accuracy.png")
+    plt.close()
+
+
 #MULTINOMIAL AMB ALTRES
 def entrena_prediu_i_evaluaDiferentsNB(X_train, y_train, X_test, y_test):
     """
