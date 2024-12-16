@@ -6,9 +6,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-
 EVALUATION_DIR = "C:/Users/marti/OneDrive/Escriptori/ProjecteAC/ACproject-grup-20/NB_evaluation"
-
 
 def evaluar(y_true, y_pred, y_prob):
     """
@@ -168,6 +166,7 @@ def comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test):
     plt.savefig(f"{EVALUATION_DIR}/comparacio_accuracy_percentatge.png")
     plt.close()
     
+
 ##############################################################################################
 #EVALUACIÓ PARÀMETRES
 ##############################################################################################

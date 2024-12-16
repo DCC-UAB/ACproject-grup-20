@@ -1,9 +1,16 @@
-#FER: AVALUACIO RESPECTE % train acabar de mirar si te sentit o no el test allà
+#FER: veure dataset % de cada un. per veure si millor accuracy o precision.
+#FER: accuracy amb max features de tfidf
+
 #FER: word embedding (relacions semantiques(sig) i sintactiques)
 #FER: BOOSTRAP, BAGGING, BOOSTING, CROSS VALIDATION
-#FER: EVALUACIO CADA MODEL TAL I COM SHA FET A CLASSE DIVENDRES
+
+
 
 #NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
+#'text', 'label'
+#40.000, 5.000, 5.000
+
+from langdetect import detect
 import time
 import re
 import pandas as pd
@@ -23,7 +30,7 @@ import KNN
 import NB
 
 # Selecció model: KNN, LR, NB, RF, SVM
-MODEL_CHOICE = 'RF' 
+MODEL_CHOICE = 'LR' 
 model_modules = {
     "LR": LR,
     "SVM": SVM,
@@ -33,9 +40,9 @@ model_modules = {
 }
 
 # path carpeta
-#DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
+DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
 #DATA_PATH = 'C:/Users/twitc/OneDrive/Desktop/Dataset/'
-DATA_PATH = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
+#DATA_PATH = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
 
 # Normalització del text
 def normalize_text(text):   
@@ -108,7 +115,7 @@ def preprocess_pipeline(data, column_name):
     """
     Funció que aplica la normalització i la lematització al dataset.
     """
-    data['processed_text'] = data['text'].apply(lambda x: stemmatize(normalize_text(x)))
+    data['processed_text'] = data['text'].apply(lambda x: lemmatize(normalize_text(x)))
     return data
 
 #carregar i preprocessar dades
@@ -118,12 +125,8 @@ def load_and_preprocess_data(data_path):
     """
     # Carregar el dataset Train, Valid, Test
     X_train = pd.read_csv(f'{data_path}Train.csv')
-    X_valid = pd.read_csv(f'{data_path}Valid.csv')
+    X_valid = pd.read_csv(f'{data_path}ValidFAKE.csv')
     X_test = pd.read_csv(f'{data_path}Test.csv')
-
-    #X_train = X_train.head(2000)
-    #X_valid = X_valid.head(2)
-    #X_test = X_test.head(1000)
 
     # Preprocessament
     X_train = preprocess_pipeline(X_train, 'text')
@@ -144,7 +147,6 @@ def load_and_preprocess_data(data_path):
 def save_data(obj, filename):
     with open(filename, 'wb') as f:
         pickle.dump(obj, f)
-
 def load_data(filename):
     with open(filename, 'rb') as f:
         return pickle.load(f)
@@ -163,9 +165,7 @@ def main():
     start_time = time.time()
 
     # Comprovar si els fitxers pickle de les matrius TF-IDF i les etiquetes ja existeixen
-    if os.path.exists('X_train_matrix.pkl') and os.path.exists('X_valid_matrix.pkl') and os.path.exists('X_test_matrix.pkl') and \
-       os.path.exists('y_train.pkl') and os.path.exists('y_valid.pkl') and os.path.exists('y_test.pkl'):
-        print("Carregant les matrius TF-IDF i etiquetes des de pickle...")
+    if os.path.exists('X_train_matrix.pkl'):
         # Carregar les matrius TF-IDF i les etiquetes des de pickle
         X_train_matrix = load_data('X_train_matrix.pkl')
         X_valid_matrix = load_data('X_valid_matrix.pkl')
@@ -173,6 +173,9 @@ def main():
         y_train = load_data('y_train.pkl')
         y_valid = load_data('y_valid.pkl')
         y_test = load_data('y_test.pkl')
+
+        print('DADES CARREGADES')
+    
     else:
         # Carregar i processar les dades
         X_train, y_train, X_valid, y_valid, X_test, y_test = load_and_preprocess_data(DATA_PATH)
@@ -188,7 +191,7 @@ def main():
         save_data(y_valid, 'y_valid.pkl')
         save_data(y_test, 'y_test.pkl')
 
-        print('Matrius TF-IDF i etiquetes guardades amb èxit.')
+        print('DADES PROCESSADESS i DESCARGADES')
 
     processar_time = time.time()
     print('Temps trigat a processar les dades:', processar_time - start_time)
@@ -200,15 +203,9 @@ def main():
     print('Model utilitzat:', MODEL_CHOICE)
     
     # Entrenar i predir
-    y_pred = getattr(model_module, "entrena_prediu_i_evalua")(X_train_matrix, y_train, X_test_matrix, y_test)
+    y_pred = getattr(model_module, "entrena_prediu_i_evaluaMaxIter")(X_train_matrix, y_train, X_test_matrix, y_test)
     entrenaripredir_time = time.time()
     print('Temps entrenament:', entrenaripredir_time - processar_time)
-    
-    if MODEL_CHOICE == "RF":
-        print("N_estimator_grafic")
-
-        RF.graficar_precision_n_estimators(X_train_matrix, y_train, X_test_matrix, y_test)
-
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,3 @@
-#llista max iters esta be?
-#tindria sentit fer un heatmap dels parametrees ? de quins? o tots
-
 import numpy as np
 import os
 import seaborn as sns
@@ -117,7 +114,7 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
 
 
 ##############################################################################################
-#EVALUACIÓ TRAIN
+#EVALUACIÓ % TRAIN
 ##############################################################################################
 
 def comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test):
@@ -265,7 +262,7 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
     Entrena el model de regressió logística amb diferents valors de max_iter
     i mostra com afecta al temps d'entrenament, l'accuracy, la precision, i genera matrius de confusió.
     """
-    max_iter_values = [10, 25, 50, 100, 500, 1000, 2000, 5000]
+    max_iter_values = [5, 10, 50, 100, 500, 1000, 2000, 5000]
 
     training_times = []
     accuracies = []
@@ -304,6 +301,9 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
     plt.xlabel('max_iter')
     plt.ylabel('Temps d\'entrenament (s)')
     plt.grid(True)
+    plt.xscale('log')
+    for i, value in enumerate(max_iter_values):
+        plt.text(max_iter_values[i], training_times[i], str(value), fontsize=12, ha='right')
     training_plot_path = os.path.join(EVALUATION_DIR, "MAX_ITER_temps_entrenament.png")
     plt.savefig(training_plot_path)
     plt.close()
@@ -315,6 +315,9 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
     plt.xlabel('max_iter')
     plt.ylabel('Accuracy')
     plt.grid(True)
+    plt.xscale('log')
+    for i, value in enumerate(max_iter_values):
+        plt.text(max_iter_values[i], accuracies[i], str(value), fontsize=12, ha='right')
     accuracy_plot_path = os.path.join(EVALUATION_DIR, "MAX_ITER_accuracy.png")
     plt.savefig(accuracy_plot_path)
     plt.close()
@@ -326,6 +329,9 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
     plt.xlabel('max_iter')
     plt.ylabel('Precision')
     plt.grid(True)
+    plt.xscale('log')
+    for i, value in enumerate(max_iter_values):
+        plt.text(max_iter_values[i], precisions[i], str(value), fontsize=12, ha='right')
     precision_plot_path = os.path.join(EVALUATION_DIR, "MAX_ITER_precision.png")
     plt.savefig(precision_plot_path)
     plt.close()
@@ -418,20 +424,3 @@ def entrena_prediu_i_evaluaImpactC(X_train, y_train, X_test, y_test):
     plt.close()
 
     print(f"Gràfiques desades")
-
-###############################################################################################
-
-#RESUTLATS GRIDSEARCH:
-'''
-Accuracy sobre el conjunt de test: 0.8900
-Accuracy sobre el conjunt d'entrenament: 0.9100
-Millor accuracy en validació creuada: 0.8853
-Millors hiperparàmetres trobats: {'C': 1, 'max_iter': 500, 'penalty': 'l2', 'solver': 'liblinear'}
-Claus disponibles a l'objecte GridSearchCV:
-dict_keys(['scoring', 'estimator', 'n_jobs', 'refit', 'cv', 'verbose', 'pre_dispatch', 
-    'error_score', 'return_train_score', 'param_grid', 'multimetric_', 'best_index_', 
-    'best_score_', 'best_params_', 'best_estimator_', 'refit_time_', 'scorer_', 
-    'cv_results_', 'n_splits_'])       
-temps entrenament 4144.591024875641
-'''
-
