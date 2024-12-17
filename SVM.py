@@ -1,43 +1,14 @@
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 from sklearn.svm import LinearSVC
-from sklearn.calibration import CalibratedClassifierCV  # Para obtener probabilidades
-from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score, accuracy_score, precision_score, recall_score, f1_score, precision_recall_curve, auc
-from sklearn.inspection import DecisionBoundaryDisplay
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.model_selection import learning_curve
 
 # Directorio para guardar los gráficos
-EVALUATION_DIR = "C:/Users/twitc/ACproject-grup-20/SVM_evaluation"
-
-def plot_probability_distribution(y_true, y_proba):
-    """
-    Plota la distribució de les probabilitats predites per cada classe.
-    """
-    plt.figure(figsize=(8, 6))
-    sns.histplot(y_proba[y_true == 1], color="blue", kde=True, label="Classe Positiva (1)", stat="density")
-    sns.histplot(y_proba[y_true == 0], color="red", kde=True, label="Classe Negativa (0)", stat="density")
-    plt.title("Distribució de les Probabilitats Preditades")
-    plt.xlabel("Probabilitat Preditada")
-    plt.ylabel("Densitat")
-    plt.legend()
-    prob_dist_path = os.path.join(EVALUATION_DIR, "probability_distribution.png")
-    plt.savefig(prob_dist_path)
-    print(f"Distribució de probabilitats guardada en {prob_dist_path}")
-    plt.close()
-
-def plot_decision_boundary(model, X, y):
-    """
-    Plota la frontera de decisió per un model entrenat en dades 2D.
-    """
-    plt.figure(figsize=(8, 6))
-    DecisionBoundaryDisplay.from_estimator(
-        model, X, response_method="predict", cmap="coolwarm", alpha=0.5
-    )
-    plt.scatter(X[:, 0], X[:, 1], c=y, cmap="coolwarm", edgecolor="k")
-    plt.title("Frontera de Decisió")
-    plt.xlabel("Característica 1")
-    plt.ylabel("Característica 2")
-    plt.show()
+EVALUATION_DIR = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
 
 def evaluar(y_true, y_pred, y_proba):
     """
@@ -59,19 +30,16 @@ def evaluar(y_true, y_pred, y_proba):
     print(f"Recall: {recall:.4f}")
     print(f"F1 Score: {f1:.4f}")
 
-    # Visualizar y guardar la matriz de confusión
+    # Visualización de la matriz de confusión
     plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, 
-                xticklabels=set(y_true), yticklabels=set(y_true))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
     plt.title('Matriz de Confusión')
     plt.xlabel('Predicciones')
     plt.ylabel('Valores Reales')
-    confusion_path = os.path.join(EVALUATION_DIR, "matriz_confusion.png")
-    plt.savefig(confusion_path)
-    print(f"Matriz de confusión guardada en {confusion_path}")
+    plt.savefig(os.path.join(EVALUATION_DIR, "matriz_confusion.png"))
     plt.close()
 
-    # Cálculo y visualización de la curva ROC
+    # Curva ROC
     fpr, tpr, _ = roc_curve(y_true, y_proba)
     auc_score = roc_auc_score(y_true, y_proba)
     print(f"\nAUC (Area Under the Curve): {auc_score:.4f}")
@@ -79,33 +47,92 @@ def evaluar(y_true, y_pred, y_proba):
     plt.figure(figsize=(8, 6))
     plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {auc_score:.2f})', color='blue')
     plt.plot([0, 1], [0, 1], linestyle='--', color='gray')
-    plt.xlabel('Tasa de Falsos Positivos (FPR)')
-    plt.ylabel('Tasa de Verdaderos Positivos (TPR)')
     plt.title('Curva ROC')
-    plt.legend(loc='lower right')
-    roc_path = os.path.join(EVALUATION_DIR, "roc_curve.png")
-    plt.savefig(roc_path)
-    print(f"Curva ROC guardada en {roc_path}")
+    plt.xlabel('FPR')
+    plt.ylabel('TPR')
+    plt.legend()
+    plt.savefig(os.path.join(EVALUATION_DIR, "roc_curve.png"))
     plt.close()
 
-    # Cálculo y visualización de la curva de precisión-recall
-    precision, recall, _ = precision_recall_curve(y_true, y_proba)
-    pr_auc = auc(recall, precision)
-    print(f"AUC (Precisión-Recall): {pr_auc:.4f}")
+def graficar_distribucion_probabilidades(probabilidades, y_test):
+    """
+    Grafica la distribución de probabilidades de predicción.
+    """
+    plt.figure(figsize=(8, 6))
+    sns.histplot(probabilidades[y_test == 1], color='green', label='Positivos', kde=True, stat="density", bins=20)
+    sns.histplot(probabilidades[y_test == 0], color='red', label='Negativos', kde=True, stat="density", bins=20)
+    plt.title('Distribución de Probabilidades de Predicción')
+    plt.xlabel('Probabilidad')
+    plt.ylabel('Densidad')
+    plt.legend()
+    plt.savefig(os.path.join(EVALUATION_DIR, "distribucion_probabilidades.png"))
+    plt.close()
+
+def graficar_precision_vs_C(X_train, y_train, X_test, y_test):
+    """
+    Grafica la precisión del modelo en función del hiperparámetro C.
+    """
+    C_values = [0.01, 0.1, 1, 10, 100]
+    accuracies = []
+
+    for C in C_values:
+        base_model = LinearSVC(C=C, max_iter=5000)
+        model = CalibratedClassifierCV(base_model, cv=5)
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        accuracies.append(accuracy_score(y_test, y_pred))
 
     plt.figure(figsize=(8, 6))
-    plt.plot(recall, precision, label=f'Precision-Recall Curve (AUC = {pr_auc:.2f})', color='green')
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.title('Curva de Precisión-Recall')
-    plt.legend(loc='lower left')
-    pr_path = os.path.join(EVALUATION_DIR, "precision_recall_curve.png")
-    plt.savefig(pr_path)
-    print(f"Curva de precisión-recall guardada en {pr_path}")
+    plt.plot(C_values, accuracies, marker='o')
+    plt.title('Precisión del Modelo vs C')
+    plt.xlabel('C (Parámetro de Regularización)')
+    plt.ylabel('Precisión')
+    plt.xscale('log')
+    plt.grid()
+    plt.savefig(os.path.join(EVALUATION_DIR, "precision_vs_C.png"))
     plt.close()
 
-    # Cridar la funció per mostrar la distribució de probabilitats
-    plot_probability_distribution(y_true, y_proba)
+def graficar_curva_aprendizaje(model, X, y):
+    
+    train_sizes, train_scores, test_scores = learning_curve(model, X, y, cv=5, scoring='accuracy')
+    train_mean = np.mean(train_scores, axis=1)
+    test_mean = np.mean(test_scores, axis=1)
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(train_sizes, train_mean, label='Entrenamiento', marker='o')
+    plt.plot(train_sizes, test_mean, label='Validación', marker='o')
+    plt.title('Curva de Aprendizaje')
+    plt.xlabel('Tamaño del Conjunto de Entrenamiento')
+    plt.ylabel('Precisión')
+    plt.legend()
+    plt.grid()
+    plt.savefig(os.path.join(EVALUATION_DIR, "curva_aprendizaje.png"))
+    plt.close()
+
+def graficar_curva_precision_recall(y_true, probabilidades):
+    """
+    Genera y guarda la Curva Precision-Recall con el AUC.
+    """
+    from sklearn.metrics import precision_recall_curve, auc
+
+    # Calcular precisión, recall y el AUC
+    precisions, recalls, _ = precision_recall_curve(y_true, probabilidades)
+    auc_pr = auc(recalls, precisions)
+
+    # Generar la gráfica
+    plt.figure(figsize=(8, 6))
+    plt.plot(recalls, precisions, color='green', label=f'Precision-Recall Curve (AUC = {auc_pr:.2f})')
+    plt.title('Precision-Recall Curve')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.legend(loc='lower left')
+    plt.grid(True)
+
+    # Guardar la gráfica
+    plt.savefig(os.path.join(EVALUATION_DIR, "curva_precision_recall.png"))
+    plt.close()
+    print("Curva Precision-Recall guardada como 'curva_precision_recall.png'")
+
 
 
 def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
@@ -127,9 +154,5 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
 
     # Evaluar resultados
     evaluar(y_test, predictions, probabilities)
-    
-    # Mostrar la frontera de decisió (si les dades són 2D)
-    if X_train.shape[1] == 2: #
-        plot_decision_boundary(model, X_train.toarray(), y_train)
 
-    return predictions
+    return predictions, probabilities 
