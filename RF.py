@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, roc_auc_score
 from sklearn.model_selection import GridSearchCV, train_test_split
 import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
 # Directorio para guardar visualizaciones
 EVALUATION_DIR = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
 #os.makedirs(EVALUATION_DIR, exist_ok=True)
@@ -102,13 +103,33 @@ def graficar_precision_n_estimators(X_train, y_train, X_test, y_test):
     plt.savefig(os.path.join(EVALUATION_DIR, "precision_n_estimators.png"))
     print("Gráfica de precisión guardada en 'precision_n_estimators.png'")
     plt.show()
+def grafica_importancias(X_train, y_train, vectorizer):
+    """
+    Genera una gráfica de las características más importantes del modelo Random Forest.
+    """
+    # Entrenar el modelo Random Forest
+    rf_model = RandomForestClassifier(n_estimators=200, max_depth=30, min_samples_leaf=2, min_samples_split=2, random_state=42)
+    rf_model.fit(X_train, y_train)
+    
+    # Obtener la importancia de las características
+    importances = rf_model.feature_importances_
+    feature_names = vectorizer.get_feature_names_out()  # Obtener nombres de características del vectorizador existente
+    
+    # Crear un DataFrame con las características más importantes
+    feature_importance_df = pd.DataFrame({'Palabra': feature_names, 'Importancia': importances})
+    feature_importance_df = feature_importance_df.sort_values(by='Importancia', ascending=False).head(20)
+    
+    # Graficar un pie chart con las características más importantes
+    plt.figure(figsize=(10, 6))
+    plt.pie(feature_importance_df['Importancia'], labels=feature_importance_df['Palabra'], autopct='%1.1f%%')
+    plt.title('Top 20 Características más Importantes (Random Forest)')
+    plt.savefig(os.path.join(EVALUATION_DIR, "importancia_caracteristicas.png"))
+    print("Gráfica de importancia de características guardada en 'importancia_caracteristicas.png'")
+    plt.close()
+
 
 def comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test):
-    """
-    Compara l'accuracy del model RF per diferents percentatges de les dades d'entrenament,
-    tant pel conjunt d'entrenament com pel conjunt de test.
-    Es seleccionen aleatòriament percentatges del 5%, 10%, 30%, 50%, 70%, 90%, 100% de les dades d'entrenament.
-    """
+   
     percentatges = [5, 10, 30, 50, 70, 90, 100]
     
     # Llistes per guardar els resultats de l'accuracy
@@ -175,7 +196,7 @@ def comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test):
     # Modificar les etiquetes de l'eix X per mostrar percentatges
     plt.xticks(percentatges, [f'{x}%' for x in percentatges])
 
-    # Guardar el gràfic a la carpeta d'evaluació
+    # Guardar el grafico a la carpeta d'evaluació
     plt.tight_layout()
     plt.savefig(f"{EVALUATION_DIR}/comparacio_accuracy_percentatge.png")
     plt.close()
@@ -243,18 +264,4 @@ def comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test):
 
 #     return grid_search.best_estimator_
 
-# def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
-#     """
-#     Entrena un modelo Random Forest optimizado, genera las predicciones y llama a 'evaluar'.
-#     """
-#     # Buscar los mejores parámetros y entrenar el modelo
-#     mejor_modelo = buscar_mejores_parametros_rf(X_train, y_train)
-
-#     # Predicciones y probabilidades
-#     y_pred = mejor_modelo.predict(X_test)
-#     y_proba = mejor_modelo.predict_proba(X_test)[:, 1]  # Probabilidades para la clase positiva
-
-#     # Evaluar resultados
-#     evaluar(y_test, y_pred, y_proba)
-#     return y_pred
 
