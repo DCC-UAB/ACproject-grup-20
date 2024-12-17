@@ -1,10 +1,3 @@
-#FER: accuracy amb max features de tfidf
-
-
-#NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
-#'text', 'label'
-#40.000, 5.000, 5.000
-
 import time
 import re
 import sys
@@ -12,6 +5,7 @@ import pickle
 import os
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from langdetect import detect
 from nltk import pos_tag
 from nltk.tokenize import word_tokenize
@@ -19,6 +13,7 @@ from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from gensim.models import Word2Vec, KeyedVectors
+from sklearn.model_selection import train_test_split
 
 import LR
 import SVM
@@ -26,6 +21,14 @@ import RF
 import KNN
 import NB
 
+#NEGATIVE COMMENT: 0, POSITIVE COMMENT: 1
+#'text', 'label'
+#40.000, 5.000, 5.000
+
+
+#################################################################################
+#PARÀMETRES
+#################################################################################
 # Selecció model: KNN, LR, NB, RF, SVM
 MODEL_CHOICE = 'LR' 
 model_modules = {
@@ -36,8 +39,8 @@ model_modules = {
     "NB": NB
 }
 
-#Selecció method: tfidf, word_embedding
-embedding_method = 'word_embedding'
+#Selecció method: {tfidf, word_embedding}
+EMBEDDING_METHOD = 'tfidf'
     
 # path carpeta
 DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'  
@@ -45,8 +48,14 @@ DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'
 #DATA_PATH = "C:/Users/Almoujtaba/Desktop/CARRERA/ACproject-grup-20/datasets_AC/"
 
 #path model word embedding
-word_embedding_model_path = 'C:/Users/marti/OneDrive/Escriptori/ProjecteAC/GoogleNews-vectors-negative300.bin'
+WORD_EMBEDDING_MODEL_PATH = 'C:/Users/marti/OneDrive/Escriptori/ProjecteAC/GoogleNews-vectors-negative300.bin'
 
+#path evaluacio models en general
+EVALUATION_DIR = "C:/Users/marti/OneDrive/Escriptori/ProjecteAC/ACproject-grup-20/MODELS_evaluation"
+
+#################################################################################
+#EXECUTION
+#################################################################################
 # Normalització del text
 def normalize_text(text):   
     """
@@ -66,6 +75,8 @@ def normalize_text(text):
 lemmatizer = WordNetLemmatizer()
 stemmer = PorterStemmer()
 
+'''
+#################   LEMMATIZE Part Of Speech -> NO APORTA MILLORA   ##############################
 # Funció per convertir etiquetes de POS al format de WordNet
 def get_wordnet_pos(treebank_tag):
     """
@@ -94,6 +105,8 @@ def lemmatizePOS(text):
         for word, tag in pos_tags
     ]
     return " ".join(lemmatized)
+##################################################################################################
+'''
 
 #lemmatitzar
 def lemmatize(text):
@@ -113,12 +126,12 @@ def stemmatize(text):
     stemmatized = [stemmer.stem(word) for word in tokens]
     return " ".join(stemmatized)
 
-# Pipeline de preprocessament
+# Pipeline de preprocessament (utilitza STEMMING)
 def preprocess_pipeline(data, column_name):
     """
     Funció que aplica la normalització i la lematització al dataset.
     """
-    data['processed_text'] = data['text'].apply(lambda x: lemmatizePOS(normalize_text(x)))
+    data['processed_text'] = data[column_name].apply(lambda x: lemmatize(normalize_text(x)))
     return data
 
 #carregar i preprocessar dades
@@ -154,7 +167,7 @@ def load_data(filename):
     with open(filename, 'rb') as f:
         return pickle.load(f)
 
-# Funció per carregar un model de Word2Vec (o un model GloVe)
+# Funció per carregar un model de Word2Vec
 def load_word_embedding_model(model_path):
     """
     Carrega un model Word2Vec o GloVe des de la ruta especificada.
@@ -186,22 +199,19 @@ def convert_to_word_embeddings(X_train, X_valid, X_test, model):
     return X_train_matrix, X_valid_matrix, X_test_matrix
 
 # Funció per convertir els textos en matrius TF-IDF
-def convert_to_tfidf(X_train, X_valid, X_test):
+def convert_to_tfidf(X_train, X_valid, X_test, mida_matriu):
     """
     Converteix els textos en matrius numèriques utilitzant TF-IDF.
     """
-    vectorizer = TfidfVectorizer(max_features=5000)
+    vectorizer = TfidfVectorizer(max_features = mida_matriu)
     X_train_matrix = vectorizer.fit_transform(X_train['processed_text'])
     X_valid_matrix = vectorizer.transform(X_valid['processed_text'])
     X_test_matrix = vectorizer.transform(X_test['processed_text'])
-    return X_train_matrix, X_valid_matrix, X_test_matrix, vectorizer
+    return X_train_matrix, X_valid_matrix, X_test_matrix
 
-# Canvi del main per incloure el paràmetre de selecció de mètode
-def main():
-    start_time = time.time()
-
-    #WORD EMBEDDING
-    if embedding_method == 'word_embedding':
+# Funció per carregar i processar dades segons el mètode d'embedding: SHA UTLITZAT LEMMATIZE
+def carregar_i_processar_dades(DATA_PATH, EMBEDDING_METHOD, WORD_EMBEDDING_MODEL_PATH):
+    if EMBEDDING_METHOD == 'word_embedding':
         if os.path.exists('X_train_word_embedding.pkl'):
             # Carregar les matrius de Word Embedding i les etiquetes des de pickle
             X_train_matrix = load_data('X_train_word_embedding.pkl')
@@ -216,7 +226,7 @@ def main():
             X_train, y_train, X_valid, y_valid, X_test, y_test = load_and_preprocess_data(DATA_PATH)
 
             # Carregar model de Word Embedding
-            model = load_word_embedding_model(word_embedding_model_path)
+            model = load_word_embedding_model(WORD_EMBEDDING_MODEL_PATH)
 
             # Convertir els textos en matrius de Word Embedding
             X_train_matrix, X_valid_matrix, X_test_matrix = convert_to_word_embeddings(X_train, X_valid, X_test, model)
@@ -231,8 +241,8 @@ def main():
 
             print('DADES PROCESSADES I DESCARGADES')
 
-    #TF-IDF
-    elif embedding_method == 'tfidf':
+    # TF-IDF
+    elif EMBEDDING_METHOD == 'tfidf':
         if os.path.exists('X_train_matrix.pkl'):
             # Carregar les matrius TF-IDF i les etiquetes des de pickle
             X_train_matrix = load_data('X_train_matrix.pkl')
@@ -247,7 +257,7 @@ def main():
             X_train, y_train, X_valid, y_valid, X_test, y_test = load_and_preprocess_data(DATA_PATH)
 
             # Convertir a matrius TF-IDF
-            X_train_matrix, X_valid_matrix, X_test_matrix, _ = convert_to_tfidf(X_train, X_valid, X_test)
+            X_train_matrix, X_valid_matrix, X_test_matrix = convert_to_tfidf(X_train, X_valid, X_test, 5000)
 
             # Guardar les matrius TF-IDF i les etiquetes
             save_data(X_train_matrix, 'X_train_matrix.pkl')
@@ -260,21 +270,207 @@ def main():
             print('DADES PROCESSADES I DESCARGADES')
 
     else:
-        print('SELECCIONAR CORRECTAMENT EL MODEL')
+        raise ValueError('SELECCIONAR CORRECTAMENT EL MODEL')
 
-    processar_time = time.time()
-    print('Temps trigat a processar les dades:', processar_time - start_time)
+    return X_train_matrix, X_valid_matrix, X_test_matrix, y_train, y_valid, y_test
+
+#robustesa diferents max features tfidf
+def evaluar_robustesa_amb_tfidf(DATA_PATH, model_modules, max_features_range):
+    """
+    Avalua tots elss models amb diferents valors de max_features (TF-IDF) i genera una gràfica.
+    """
+    X_train, y_train, X_valid, y_valid, X_test, y_test = load_and_preprocess_data(DATA_PATH)
     
-    # Obtenir el model
-    if MODEL_CHOICE not in model_modules:
-        raise ValueError(f"Model no reconegut: {MODEL_CHOICE}")
-    model_module = model_modules[MODEL_CHOICE]
-    print('Model utilitzat:', MODEL_CHOICE)
+    results = {model_name: [] for model_name in model_modules.keys()}  # Per emmagatzemar els resultats
+
+    for mida_matriu in max_features_range:
+        # Crear matrius TF-IDF
+        X_train_matrix, X_valid_matrix, X_test_matrix = convert_to_tfidf(X_train, X_valid, X_test, mida_matriu)
+
+        for model_name, model_module in model_modules.items():
+            accuracy = getattr(model_module, "acc_millors_params")(X_train_matrix, y_train, X_test_matrix, y_test)
+            results[model_name].append(accuracy)
+            print(f"{model_name} (max_features={mida_matriu}): Accuracy = {accuracy:.4f}")
     
-    # Entrenar i predir
-    y_pred = getattr(model_module, "entrena_prediu_i_evalua")(X_train_matrix, y_train, X_test_matrix, y_test)
-    entrenaripredir_time = time.time()
-    print('Temps entrenament:', entrenaripredir_time - processar_time)
+    # Graficar els resultats
+    plt.figure(figsize=(10, 6))
+    for model_name, accuracies in results.items():
+        plt.plot(max_features_range, accuracies, label=model_name)
+
+    # Modificar les etiquetes de l'eix X per mostrar els valors de max_features
+    plt.xticks(max_features_range, [str(x) for x in max_features_range])
+
+    plt.xlabel('max_features (TF-IDF)')
+    plt.ylabel('Accuracy')
+    plt.title('Rendiment dels models segons max_features (TF-IDF)')
+    plt.legend()
+    plt.grid(True)
+
+    #guardar grafica
+    file_path = os.path.join(EVALUATION_DIR, "acc_max_features.png")
+    plt.savefig(file_path)
+
+#robustesa diferents % train
+def evaluar_robustesa_amb_subsets(DATA_PATH, model_modules, train_percentages):
+    """
+    Avalua tots els models amb diferents percentatges del conjunt de dades d'entrenament i genera una gràfica.
+    """
+    # Carregar i processar les dades
+    X_train_matrix, X_valid_matrix, X_test_matrix, y_train, y_valid, y_test = carregar_i_processar_dades(DATA_PATH, EMBEDDING_METHOD, WORD_EMBEDDING_MODEL_PATH)
+    
+    results = {model_name: [] for model_name in model_modules.keys()}  # Per emmagatzemar els resultats
+
+    for train_pct in train_percentages:
+        print(f"Processant amb {train_pct}% del conjunt d'entrenament.")
+
+        # Reduir el conjunt de dades d'entrenament
+        if train_pct < 100:
+            X_train_subset, _, y_train_subset, _ = train_test_split(X_train_matrix, y_train, train_size=train_pct / 100, random_state=42)
+        else:
+            X_train_subset, y_train_subset = X_train_matrix, y_train
+
+        for model_name, model_module in model_modules.items():
+            accuracy = getattr(model_module, "acc_millors_params")(X_train_subset, y_train_subset, X_test_matrix, y_test)
+            results[model_name].append(accuracy)
+            print(f"{model_name} ({train_pct}% train): Accuracy = {accuracy:.4f}")
+    
+    # Graficar els resultats
+    plt.figure(figsize=(10, 6))
+    for model_name, accuracies in results.items():
+        plt.plot(train_percentages, accuracies, label=model_name)
+
+    # Modificar les etiquetes de l'eix X per mostrar percentatges
+    plt.xticks(train_percentages, [f'{x}%' for x in train_percentages])
+
+    plt.xlabel('Percentatge del conjunt d\'entrenament (%)')
+    plt.ylabel('Accuracy')
+    plt.title('Rendiment dels models segons percentatge del conjunt d\'entrenament')
+    plt.legend()
+    plt.grid(True)
+
+    #guardar grafica
+    file_path = os.path.join(EVALUATION_DIR, "acc_perc_train.png")
+    plt.savefig(file_path)
+
+def get_stemmed_tfidf(DATA_PATH):
+    # Carregar el dataset Train, Valid, Test
+    X_train = pd.read_csv(f'{DATA_PATH}Train.csv')
+    X_valid = pd.read_csv(f'{DATA_PATH}ValidFAKE.csv')
+    X_test = pd.read_csv(f'{DATA_PATH}Test.csv')
+
+    X_train['processed_text'] = X_train['text'].apply(lambda x: stemmatize(normalize_text(x)))
+    X_valid['processed_text'] = X_valid['text'].apply(lambda x: stemmatize(normalize_text(x)))
+    X_test['processed_text'] = X_test['text'].apply(lambda x: stemmatize(normalize_text(x)))
+
+    y_train = X_train['label']
+    y_valid = X_valid['label']
+    y_test = X_test['label']
+
+    X_train = X_train[['processed_text']]
+    X_valid = X_valid[['processed_text']]
+    X_test = X_test[['processed_text']]
+
+    X_train_matrix, X_valid_matrix, X_test_matrix = convert_to_tfidf(X_train, X_valid, X_test, 5000)
+    print('dades processaddes amb stemming')
+    return X_train_matrix, X_valid_matrix, X_test_matrix, y_train, y_valid, y_test
+
+#stemming/lemmatitzacio
+def compare_stemming_vs_lemmatization(DATA_PATH, model_modules):
+    """
+    Compara els rendiments de les tècniques de stemming i lemmatization per tots els models.
+    Genera un gràfic de barres amb els resultats.
+    """
+    # Obtenir les matrius TF-IDF amb lemmatization (ja en TF-IDF)
+    X_train_lemmatized, X_valid_lemmatized, X_test_lemmatized, y_train, y_valid, y_test = carregar_i_processar_dades(DATA_PATH, EMBEDDING_METHOD, WORD_EMBEDDING_MODEL_PATH)
+    
+    # Obtenir les matrius TF-IDF amb stemming
+    X_train_stemmed_matrix, X_valid_stemmed_matrix, X_test_stemmed_matrix, y_train, y_valid, y_test = get_stemmed_tfidf(DATA_PATH)
+    
+    # Inicialitzar un diccionari per emmagatzemar els resultats dels models
+    results = {model_name: {'lemmatization': 0, 'stemming': 0} for model_name in model_modules.keys()}
+
+    # Comparar per a cada model
+    for model_name, model_module in model_modules.items():
+        print(f"Model: {model_name}")
+        
+        # Accuracy per a lemmatization (ja en TF-IDF)
+        accuracy_lemmatize = getattr(model_module, "acc_millors_params")(X_train_lemmatized, y_train, X_test_lemmatized, y_test)
+        results[model_name]['lemmatization'] = accuracy_lemmatize
+        print(f"Accuracy (lemmatization): {accuracy_lemmatize:.4f}")
+
+        # Accuracy per a stemming (ja en TF-IDF)
+        accuracy_stemming = getattr(model_module, "acc_millors_params")(X_train_stemmed_matrix, y_train, X_test_stemmed_matrix, y_test)
+        results[model_name]['stemming'] = accuracy_stemming
+        print(f"Accuracy (stemming): {accuracy_stemming:.4f}")
+
+    # Crear un gràfic de barres per comparar els resultats
+    model_names = list(results.keys())
+    lemmatization_accuracies = [results[model]['lemmatization'] for model in model_names]
+    stemming_accuracies = [results[model]['stemming'] for model in model_names]
+
+    # Graficar els resultats
+    x = np.arange(len(model_names))  # Posicions en l'eix X
+    width = 0.35  # Amplada de les barres
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - width/2, lemmatization_accuracies, width, label='Lemmatization')
+    ax.bar(x + width/2, stemming_accuracies, width, label='Stemming')
+
+    ax.set_xlabel('Models')
+    ax.set_ylabel('Accuracy (%)')
+    ax.set_title('Comparativa entre Lemmatization i Stemming per a cada model')
+    ax.set_xticks(x)
+    ax.set_xticklabels(model_names)
+    ax.legend()
+
+    #guardar grafica
+    file_path = os.path.join(EVALUATION_DIR, "acc_stemmlemm.png")
+    plt.savefig(file_path)
+
+def main():
+    print("Selecciona una opció:")
+    print("1. Executar i evalura el model seleccionat")
+    print("2. Evaluar robustesa dels models (AMB MILLORS PARÀMETERS)")
+    print('3. Evaluació stemming/lemmatize (AMB MILLORS PARÀMETERS)')
+    print('4. Evaluació tfidf/word embedding (AMB MILLORS PARÀMETERS)')
+    
+    try:
+        opcio = int(input("Introdueix el número de l'opció (1 o 2): "))
+    except ValueError:
+        print("Opció no vàlida. Introdueix un número enter.")
+        return
+    
+    #EXECUCIO MODEL SELECCIONAT
+    if opcio == 1:
+        print('embedding method:', EMBEDDING_METHOD)
+        print('Model:', MODEL_CHOICE)
+
+        # Carregar i processar les dades
+        X_train_matrix, X_valid_matrix, X_test_matrix, y_train, y_valid, y_test = carregar_i_processar_dades(DATA_PATH, EMBEDDING_METHOD, WORD_EMBEDDING_MODEL_PATH)
+        
+        # Obtenir el model
+        if MODEL_CHOICE not in model_modules:
+            raise ValueError(f"Model no reconegut: {MODEL_CHOICE}")
+        model_module = model_modules[MODEL_CHOICE]
+
+        # Entrenar i predir
+        y_pred = getattr(model_module, "entrena_prediu_i_evaluaMaxIter")(X_train_matrix, y_train, X_test_matrix, y_test)
+
+    #GRAFIQUES ROBUSTESA
+    elif opcio == 2:
+        max_features_range = [100, 500, 1000, 3000, 5000]  # Valors per provar TF-IDF
+        train_percentages = [10, 25, 50, 75, 100]  # Percentatges a utilitzar
+        evaluar_robustesa_amb_tfidf(DATA_PATH, model_modules, max_features_range)
+        evaluar_robustesa_amb_subsets(DATA_PATH, model_modules, train_percentages)
+
+    #COMPARAR STEMMING I LEMMATIZE
+    elif opcio == 3:
+        compare_stemming_vs_lemmatization(DATA_PATH, model_modules)
+
+    elif opcio == 4:
+        print('hola')
+    else:
+        print("Opció no vàlida. Si us plau, selecciona 1 o 2.")
 
 if __name__ == "__main__":
     main()
