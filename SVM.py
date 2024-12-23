@@ -156,3 +156,15 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
     evaluar(y_test, predictions, probabilities)
 
     return predictions, probabilities 
+
+#AMB MILLORS PARAMS
+def acc_millors_params(X_train, y_train, X_test, y_test):
+    print('fent SVM')
+    """
+    Entrena un model de SVM amb els millors paràmetres i retorna l'acc.
+    """
+    model = LinearSVC(C=1.0, max_iter=5000, random_state=42)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    return accuracy
