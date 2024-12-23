@@ -86,6 +86,17 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
     return predictions
 
 
+#acc amb millors params
+def acc_millors_params(X_train, y_train, X_test, y_test):
+    """
+    Entrena un model de Naive Bayes amb els millors paràmetres i retorna l'acc.
+    """
+    model = MultinomialNB(alpha=5.0)  # Additivitat de Laplace
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    return accuracy
+
 ##############################################################################################
 #EVALUACIÓ % TRAIN
 ##############################################################################################
@@ -289,3 +300,5 @@ def entrena_prediu_i_evaluaDiferentsNB(X_train, y_train, X_test, y_test):
     plt.tight_layout()
     plt.savefig(f"{EVALUATION_DIR}/comparacio_metricas.png")
     plt.close()
+
+
