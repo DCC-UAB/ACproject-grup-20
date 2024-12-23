@@ -219,3 +219,14 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test): #, max_k=200, sta
     comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test, 195)
 
     return predictions
+
+def acc_millors_params(X_train, y_train, X_test, y_test):
+    print('fent KNN')
+    """
+    Entrena un model de KNN amb els millors paràmetres i retorna l'acc.
+    """
+    model = KNeighborsClassifier(n_neighbors=195)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    return accuracy
