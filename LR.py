@@ -67,7 +67,7 @@ def evaluar(y_true, y_pred, y_proba):
     # Guardar la ROC curve
     roc_plot_path = os.path.join(EVALUATION_DIR, "roc_curve.png")
     plt.savefig(roc_plot_path)
-    print("ROC curve guardada a")
+    print("ROC curve guardada")
     plt.close()
 
 
@@ -112,6 +112,19 @@ def entrena_prediu_i_evalua(X_train, y_train, X_test, y_test):
 
     return predictions
 
+#acc amb millors params
+def acc_millors_params(X_train_subset, y_train_subset, X_test, y_test):
+    # Crear i entrenar el model de regressió logística
+    model = LogisticRegression(C=1, max_iter=500, penalty='l2', solver='saga')
+    model.fit(X_train_subset, y_train_subset)
+        
+    # prediccions
+    y_pred = model.predict(X_test)
+
+    # Calcular l'accuracy
+    accuracy = accuracy_score(y_test, y_pred)
+        
+    return accuracy
 
 ##############################################################################################
 #EVALUACIÓ % TRAIN
@@ -271,7 +284,7 @@ def entrena_prediu_i_evaluaMaxIter(X_train, y_train, X_test, y_test):
 
     for max_iter in max_iter_values:
         start_time = time.time()  # Mesura del temps d'entrenament
-        model = LogisticRegression(max_iter=max_iter, solver='liblinear', C=1.0, penalty='l2')
+        model = LogisticRegression(max_iter=max_iter, solver='saga', C=1.0, penalty='l2')
         model.fit(X_train, y_train)
         end_time = time.time()
         
@@ -373,7 +386,7 @@ def entrena_prediu_i_evaluaImpactC(X_train, y_train, X_test, y_test):
     # Entrenar i avaluar el model per cada valor de C
     for C in C_values:
         start_time = time.time()  # Mesura del temps d'entrenament
-        model = LogisticRegression(max_iter=1000, C=C, penalty='l2', solver='liblinear')
+        model = LogisticRegression(max_iter=500, C=C, penalty='l2', solver='saga')
         model.fit(X_train, y_train)
         end_time = time.time()
 
