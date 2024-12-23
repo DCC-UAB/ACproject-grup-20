@@ -49,6 +49,7 @@ DATA_PATH = 'C:/Users/marti/OneDrive/Escriptori/datasets_AC/'
 
 #path model word embedding
 WORD_EMBEDDING_MODEL_PATH = 'C:/Users/marti/OneDrive/Escriptori/ProjecteAC/GoogleNews-vectors-negative300.bin'
+#WORD_EMBEDDING_MODEL_PATH = None
 
 #path evaluacio models en general
 EVALUATION_DIR = "C:/Users/marti/OneDrive/Escriptori/ProjecteAC/ACproject-grup-20/MODELS_evaluation"
@@ -75,7 +76,7 @@ def normalize_text(text):
 lemmatizer = WordNetLemmatizer()
 stemmer = PorterStemmer()
 
-'''
+
 #################   LEMMATIZE Part Of Speech -> NO APORTA MILLORA   ##############################
 # Funció per convertir etiquetes de POS al format de WordNet
 def get_wordnet_pos(treebank_tag):
@@ -92,7 +93,6 @@ def get_wordnet_pos(treebank_tag):
         return wordnet.ADV
     else:
         return wordnet.NOUN  
-
 # Funció per aplicar lematització amb POS
 def lemmatizePOS(text):
     """
@@ -106,7 +106,6 @@ def lemmatizePOS(text):
     ]
     return " ".join(lemmatized)
 ##################################################################################################
-'''
 
 #lemmatitzar
 def lemmatize(text):
@@ -210,8 +209,8 @@ def convert_to_tfidf(X_train, X_valid, X_test, mida_matriu):
     return X_train_matrix, X_valid_matrix, X_test_matrix
 
 # Funció per carregar i processar dades segons el mètode d'embedding: SHA UTLITZAT LEMMATIZE
-def carregar_i_processar_dades(DATA_PATH, EMBEDDING_METHOD, WORD_EMBEDDING_MODEL_PATH):
-    if EMBEDDING_METHOD == 'word_embedding':
+def carregar_i_processar_dades(DATA_PATH, embedding_method, WORD_EMBEDDING_MODEL_PATH):
+    if embedding_method == 'word_embedding':
         if os.path.exists('X_train_word_embedding.pkl'):
             # Carregar les matrius de Word Embedding i les etiquetes des de pickle
             X_train_matrix = load_data('X_train_word_embedding.pkl')
@@ -242,7 +241,7 @@ def carregar_i_processar_dades(DATA_PATH, EMBEDDING_METHOD, WORD_EMBEDDING_MODEL
             print('DADES PROCESSADES I DESCARGADES')
 
     # TF-IDF
-    elif EMBEDDING_METHOD == 'tfidf':
+    elif embedding_method == 'tfidf':
         if os.path.exists('X_train_matrix.pkl'):
             # Carregar les matrius TF-IDF i les etiquetes des de pickle
             X_train_matrix = load_data('X_train_matrix.pkl')
@@ -435,7 +434,7 @@ def main():
     print('4. Evaluació tfidf/word embedding (AMB MILLORS PARÀMETERS)')
     
     try:
-        opcio = int(input("Introdueix el número de l'opció (1 o 2): "))
+        opcio = int(input("Introdueix el número de l'opció (1, 2, 3 o 4): "))
     except ValueError:
         print("Opció no vàlida. Introdueix un número enter.")
         return
@@ -454,7 +453,7 @@ def main():
         model_module = model_modules[MODEL_CHOICE]
 
         # Entrenar i predir
-        y_pred = getattr(model_module, "entrena_prediu_i_evaluaMaxIter")(X_train_matrix, y_train, X_test_matrix, y_test)
+        y_pred = getattr(model_module, "entrena_prediu_i_evaluaAlpha")(X_train_matrix, y_train, X_test_matrix, y_test)
 
     #GRAFIQUES ROBUSTESA
     elif opcio == 2:
@@ -467,8 +466,53 @@ def main():
     elif opcio == 3:
         compare_stemming_vs_lemmatization(DATA_PATH, model_modules)
 
+    #COMPARAR WORDEMBEDDING I TFIDF
     elif opcio == 4:
-        print('hola')
+        # Noms dels models
+        model_names = list(model_modules.keys())
+        accuracies_tfidf = []
+        accuracies_word_embedding = []
+
+        # Carregar dades per a TF-IDF
+        X_train_tfidf, _, X_test_tfidf, y_train, _, y_test = carregar_i_processar_dades(DATA_PATH, 'tfidf', None)
+
+        # Carregar dades per a Word Embedding
+        X_train_we, _, X_test_we, _, _, _ = carregar_i_processar_dades(DATA_PATH, 'word_embedding', WORD_EMBEDDING_MODEL_PATH)
+
+        # Calcular accuracies per a cada model
+        for model_name in model_names:
+            model_module = model_modules[model_name]
+
+            # Accuracy amb TF-IDF
+            acc_tfidf = model_module.acc_millors_params(X_train_tfidf, y_train, X_test_tfidf, y_test)
+            accuracies_tfidf.append(acc_tfidf)
+
+            # Accuracy amb Word Embedding
+            if model_name == "NB":
+                accuracies_word_embedding.append(0)
+            else:
+                acc_we = model_module.acc_millors_params(X_train_we, y_train, X_test_we, y_test)
+                accuracies_word_embedding.append(acc_we)
+
+        # Generar gràfica de barres
+        x = range(len(model_names))
+        width = 0.35
+        
+        plt.figure(figsize=(10, 6))
+        plt.bar(x, accuracies_tfidf, width, label='TF-IDF')
+        plt.bar([i + width for i in x], accuracies_word_embedding, width, label='Word Embedding')
+
+        plt.xlabel('Models')
+        plt.ylabel('Accuracy')
+        plt.title('Comparació de l\'accuracy entre TF-IDF i Word Embedding')
+        plt.xticks([i + width / 2 for i in x], model_names, rotation=45)
+        plt.legend()
+        plt.tight_layout()
+        
+        #guardar grafica
+        file_path = os.path.join(EVALUATION_DIR, "acc_wordemb_tfidf.png")
+        plt.savefig(file_path)
+
     else:
         print("Opció no vàlida. Si us plau, selecciona 1 o 2.")
 
