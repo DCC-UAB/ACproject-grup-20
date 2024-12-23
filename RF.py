@@ -200,7 +200,18 @@ def comparar_accuracy_per_percentatge(X_train, y_train, X_test, y_test):
     plt.tight_layout()
     plt.savefig(f"{EVALUATION_DIR}/comparacio_accuracy_percentatge.png")
     plt.close()
-        
+
+def acc_millors_params(X_train, y_train, X_test, y_test):
+    print('fent RF')
+    """
+    Entrena un model de Random Forest amb els millors paràmetres i retorna l'acc.
+    """
+    model = RandomForestClassifier(n_estimators=200, max_depth=30, min_samples_leaf = 2, min_samples_split=2, random_state=42)  # 100 arbres, sense profunditat màxima
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    return accuracy
+    
 ###
 #Lo que se hizo aqui abajo es para encontrar los mejores parametros para este modelo donde demos encontrado lo siguiente:
 # Temps trigat a processar les dades : 118.41145944595337
